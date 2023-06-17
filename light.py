@@ -1,31 +1,44 @@
-# void setup() {
-
-#   Serial.begin(115200);
-
-#   pinMode(SHCP, OUTPUT);
-#   pinMode(STCP, OUTPUT);
-#   pinMode(DS, OUTPUT);
-
-#   pinMode(S0, OUTPUT);
-#   pinMode(S1, OUTPUT);
-#   pinMode(S2, OUTPUT);
-#   pinMode(S3, OUTPUT);
-
-#   pinMode(ADC_MULTI, INPUT);
-
-#   ShiftRegisterReset();
-# }
-
 import pinesp32
-from machine import Pin
+from machine import Pin, ADC
+from shift_register import shift_register_write, shift_register_set
 
-S0 = Pin(pinesp32.S0, Pin.OUT)
-S1 = Pin(pinesp32.S1, Pin.OUT)
-S2 = Pin(pinesp32.S2, Pin.OUT)
-S3 = Pin(pinesp32.S3, Pin.OUT)
-SHCP = Pin(pinesp32.SHCP, Pin.OUT)
-STCP = Pin(pinesp32.STCP, Pin.OUT)
-DS = Pin(pinesp32.DS, Pin.OUT)
-ADC_MULTI = Pin(pinesp32.ADC_MULTI, Pin.IN)
+# c++ https://github.com/waspinator/CD74HC4067
 
-ShiftRegisterBits = [False]*24
+_g_channel_truth_table = [
+    #s0, s1, s2, s3     channel
+    [1,  1,  1,  1],  # 0
+    [0,  1,  1,  1],  # 1
+    [1,  0,  1,  1],  # 2
+    [0,  0,  1,  1],  # 3
+    [1,  1,  0,  1],  # 4
+    [0,  1,  0,  1],  # 5
+    [1,  0,  0,  1],  # 6
+    [0,  0,  0,  1],  # 7
+    [1,  1,  1,  0],  # 8
+    [0,  1,  1,  0],  # 9
+    [1,  0,  1,  0],  # 10
+    [0,  0,  1,  0],  # 11
+    [1,  1,  0,  0],  # 12
+    [0,  1,  0,  0],  # 13
+    [1,  0,  0,  0],  # 14
+    [0,  0,  0,  0]   # 15
+]
+
+_S0 = Pin(pinesp32.S0, Pin.OUT)
+_S1 = Pin(pinesp32.S1, Pin.OUT)
+_S2 = Pin(pinesp32.S2, Pin.OUT)
+_S3 = Pin(pinesp32.S3, Pin.OUT)
+_ADC_MULTI = ADC(Pin(pinesp32.ADC_MULTI, Pin.IN))
+
+def set_channel(channel: int):
+    _S0.value(_g_channel_truth_table[channel][0])
+    _S1.value(_g_channel_truth_table[channel][1])
+    _S2.value(_g_channel_truth_table[channel][2])
+    _S3.value(_g_channel_truth_table[channel][3])
+
+def read_raw(channel: int):
+    set_channel(channel)
+    return _ADC_MULTI.read_u16()
+
+while True:
+    print(read_raw(pinesp32.ADC_PT_M))
