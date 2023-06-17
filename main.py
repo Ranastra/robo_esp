@@ -1,6 +1,11 @@
 # main.py -- put your code here!
 #from led import loop
 #loop()
+
+import sys
+sys.modules.clear() # clear cache
+
+
 from machine import Pin, ADC
 
 class Mux:

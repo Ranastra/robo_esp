@@ -5,17 +5,18 @@ SHCP:Pin = Pin(pinesp32.SHCP, Pin.OUT)
 STCP:Pin = Pin(pinesp32.STCP, Pin.OUT)
 DS:Pin = Pin(pinesp32.DS, Pin.OUT)
 
-shift_register_bits:list[bool] = [False]*24
+_shift_register_bits:list[bool] = [False]*24
 
-def shift_register_write(pin:int, state:bool):
-    if state != shift_register_bits[pin]:
-        shift_register_bits[pin] = state
-        STCP.value(0)
-        for i in range(24):
-            SHCP.value(0)
-            DS.value(shift_register_bits[i])
-            SHCP.value(1)
-        STCP.value(1)
+def shift_register_write():
+    STCP.value(0)
+    for i in range(23, -1, -1):
+        SHCP.value(0)
+        DS.value(_shift_register_bits[i])
+        SHCP.value(1)
+    STCP.value(1)
+
+def shift_register_set(pin:int, state:bool):
+    _shift_register_bits[pin] = state
 
 def shift_register_reset():
     STCP.value(0)

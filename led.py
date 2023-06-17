@@ -1,4 +1,4 @@
-from shift_register import shift_register_write
+from shift_register import shift_register_write, shift_register_set
 from pinesp32 import SR_LED_L_BLUE, SR_LED_L_RED, SR_LED_L_GREEN, SR_LED_R_BLUE, SR_LED_R_GREEN, SR_LED_R_RED
 # rgb leds: combining red, green and blue gives new colors
 # turn led on by setting it to low
@@ -14,11 +14,13 @@ YELLOW = (False, False, True)
 CYAN = (True, False, False)
 
 def set_left_led(color:tuple[bool, bool, bool]):
-    shift_register_write(SR_LED_L_RED, color[0])
-    shift_register_write(SR_LED_L_GREEN, color[1])
-    shift_register_write(SR_LED_L_BLUE, color[2])
+    shift_register_set(SR_LED_L_RED, color[0])
+    shift_register_set(SR_LED_L_GREEN, color[1])
+    shift_register_set(SR_LED_L_BLUE, color[2])
+    shift_register_write()
 
 def set_right_led(color:tuple[bool, bool, bool]):
-    shift_register_write(SR_LED_R_RED, color[0])
-    shift_register_write(SR_LED_R_GREEN, color[1])
-    shift_register_write(SR_LED_R_BLUE, color[2])
+    shift_register_set(SR_LED_R_RED, color[0])
+    shift_register_set(SR_LED_R_GREEN, color[1])
+    shift_register_set(SR_LED_R_BLUE, color[2])
+    shift_register_write()

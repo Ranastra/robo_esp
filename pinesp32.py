@@ -51,12 +51,12 @@ SR_PT_GREEN    =  7 ##Light sensor bar green led
 ##Shiftregister IC12
 
 SR_PT_BLUE     =  8 ##Light sensor bar blue led
-SR_LED_L_RED   =  11 ##LOW - ON
+SR_LED_L_RED   =  9 ##LOW - ON
 SR_LED_L_GREEN =  10
-SR_LED_L_BLUE  =  9
-SR_LED_R_RED   =  14
+SR_LED_L_BLUE  =  11
+SR_LED_R_RED   =  12
 SR_LED_R_GREEN =  13
-SR_LED_R_BLUE  =  12
+SR_LED_R_BLUE  =  14
 SR_XSHT1       =  15 ##TOF Select
 
 ##Shiftregister IC13
