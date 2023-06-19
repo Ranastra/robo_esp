@@ -1,8 +1,6 @@
 import pinesp32
 from time import sleep_ms
 from machine import Pin, ADC
-from shift_register import shift_register_write, shift_register_set, shift_register_reset
-shift_register_reset()
 
 # c++ https://github.com/waspinator/CD74HC4067
 
@@ -38,13 +36,5 @@ def set_channel(channel: int):
     _S2.value(_g_channel_truth_table[channel][2])
     _S3.value(_g_channel_truth_table[channel][3])
 
-def read_raw(channel: int):
-    set_channel(channel)
+def read_raw_adc():
     return _ADC_MULTI.read_u16()
-
-print("te")
-print(read_raw(pinesp32.ADC_PT_M))
-print("te")
-while True:
-    sleep_ms(200)
-    print(read_raw(pinesp32.ADC_PT_M))
