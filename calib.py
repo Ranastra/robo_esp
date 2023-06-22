@@ -2,8 +2,8 @@ from sensor import all_sensors, green_sensors, red_sensors
 from led import set_lightsensorbar_white, set_lightsensorbar_led, GREEN, RED, OFF
 from adc_multi import set_channel, read_raw_adc
 
-_PRINT_CALIB:bool = const(True)
-_SAMPLE_NUMBERS:int = const(1200)
+_PRINT_CALIB:bool = True
+_SAMPLE_NUMBERS:int = 1200
 
 
 def write_calib():

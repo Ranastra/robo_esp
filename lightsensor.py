@@ -6,26 +6,26 @@ from sensor import all_sensors, green_sensors, red_sensors, Sensor
 
 
 ###### Level for colors ######
-_WHITE_LEVEL:int = const(0)
-_DARK_LEVEL:int = const(0)
-_RED_GREEN_DIFF_GREEN_LEVEL:int = const(0)
-_RED_GREEN_DIFF_RED_LEVEL:int = const(0)
-_WHITE_LEVEL_GREEN:int = const(0)
+_WHITE_LEVEL:int = 0
+_DARK_LEVEL:int = 0
+_RED_GREEN_DIFF_GREEN_LEVEL:int = 0
+_RED_GREEN_DIFF_RED_LEVEL:int = 0
+_WHITE_LEVEL_GREEN:int = 0
 
 ###### colors ######
 COLOR = int
-GREEN:COLOR = const(2)
-BLACK:COLOR = const(1)
-WHITE:COLOR = const(0)
-RED:COLOR = const(3)
-SILVER:COLOR = const(4)
+GREEN:COLOR = 2
+BLACK:COLOR = 1
+WHITE:COLOR = 0
+RED:COLOR = 3
+SILVER:COLOR = 4
 
 ###### directions ######
 DIRECTION = int
-FORWARD:DIRECTION = const(0)
-LEFT:DIRECTION = const(1)
-RIGHT:DIRECTION = const(-1)
-BACKWARD:DIRECTION = const(3)
+FORWARD:DIRECTION = 0
+LEFT:DIRECTION = 1
+RIGHT:DIRECTION = -1
+BACKWARD:DIRECTION = 3
 
 ###### measure functions ######
 

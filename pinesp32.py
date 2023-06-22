@@ -88,6 +88,6 @@ VBAT           =  36
 
 SDA            =  21
 SCL            =  22
-MPU6050_ADRESS =  0x51
+MPU6050_ADRESS =  0x68 #0x51 in c++
 OLED_ADRESS    =  0x3C
 TOF_ADRESS     =  0x29
