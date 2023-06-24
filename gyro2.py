@@ -1,4 +1,4 @@
-from machine import Pin, I2C
+from machine import Pin, I2C, SoftI2C
 from pinesp32 import MPU6050_ADRESS, SCL, SDA
 import time
 
@@ -13,7 +13,7 @@ class accel():
 
     def get_raw_values(self):
         self.iic.start()
-        a = self.iic.readfrom_mem(self.addr, 0x3B, 14)
+        a = self.iic.readfrom_mem(self.addr, 0x51, 14)
         self.iic.stop()
         return a
 
@@ -35,10 +35,10 @@ class accel():
         vals["AcX"] = self.bytes_toint(raw_ints[0], raw_ints[1])
         vals["AcY"] = self.bytes_toint(raw_ints[2], raw_ints[3])
         vals["AcZ"] = self.bytes_toint(raw_ints[4], raw_ints[5])
-        vals["Tmp"] = self.bytes_toint(raw_ints[6], raw_ints[7]) / 340.00 + 36.53
-        vals["GyX"] = self.bytes_toint(raw_ints[8], raw_ints[9])
-        vals["GyY"] = self.bytes_toint(raw_ints[10], raw_ints[11])
-        vals["GyZ"] = self.bytes_toint(raw_ints[12], raw_ints[13])
+        # vals["Tmp"] = self.bytes_toint(raw_ints[6], raw_ints[7]) / 340.00 + 36.53
+        # vals["GyX"] = self.bytes_toint(raw_ints[8], raw_ints[9])
+        # vals["GyY"] = self.bytes_toint(raw_ints[10], raw_ints[11])
+        # vals["GyZ"] = self.bytes_toint(raw_ints[12], raw_ints[13])
         return vals  # returned in range of Int16
         # -32768 to 32767
 
@@ -48,7 +48,9 @@ class accel():
             print(self.get_values())
             sleep(0.05)
 
-i2c = I2C(MPU6050_ADRESS, scl=Pin(SCL, Pin.PULL_UP), sda=Pin(SDA, Pin.PULL_UP))
+# i2c = I2C(1, MPU6050_ADRESS, scl=Pin(SCL, Pin.PULL_UP), sda=Pin(SDA, Pin.PULL_UP))
+# i2c = I2C(1, scl=Pin(SCL), sda=Pin(SDA))
+i2c = I2C(0, addr=0x68, scl=Pin(SCL), sda=Pin(SDA))
 gyro = accel(i2c)
 
 def test_gyro():
