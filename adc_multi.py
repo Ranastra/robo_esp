@@ -2,6 +2,7 @@ import pinesp32
 import machine
 
 # c++ https://github.com/waspinator/CD74HC4067
+print("import adc_multi.py")
 
 _g_channel_truth_table = [
     # s0, s1, s2, s3     channel
@@ -29,6 +30,10 @@ _S2 = machine.Pin(pinesp32.S2, machine.Pin.OUT)
 _S3 = machine.Pin(pinesp32.S3, machine.Pin.OUT)
 _ADC_MULTI = machine.ADC(machine.Pin(pinesp32.ADC_MULTI, machine.Pin.IN))
 
+# adjust to arduino
+# _ADC_MULTI.width(machine.ADC.WIDTH_10BIT) # output bit size
+_ADC_MULTI.atten(machine.ADC.ATTN_11DB)  # adjusts to input voltage
+
 
 def set_channel(channel: int):
     _S0.value(_g_channel_truth_table[channel][0])
@@ -38,4 +43,4 @@ def set_channel(channel: int):
 
 
 def read_raw():
-    return _ADC_MULTI.read_u16()
+    return _ADC_MULTI.read()

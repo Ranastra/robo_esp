@@ -29,19 +29,18 @@ def drive(mot: Mot, speed: int):
     shift_register.write()
 
 
-def drive_stop(mot: Mot):
+def stop(mot: Mot):
     if mot & MOT_A:
         _PWMA.duty_u16(0)
     if mot & MOT_B:
         _PWMB.duty_u16(0)
 
 
-def test_drive():
-    """test drive forward backward 5 times"""
+def test():
     time.sleep(5)
     for _ in range(5):
         drive(MOT_AB, 80)
         time.sleep(2)
         drive(MOT_AB, -80)
         time.sleep(2)
-    drive_stop(MOT_AB)
+    stop(MOT_AB)

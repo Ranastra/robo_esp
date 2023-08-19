@@ -3,7 +3,7 @@ import led
 import time
 import sensor
 
-_USE_WHITE_LEDS: bool = False
+_USE_WHITE_LEDS: bool = True
 _USE_RGB_WHITE_LEDS: bool = False
 
 ###### Level for colors ######
@@ -33,13 +33,13 @@ BACKWARD: DIRECTION = 3
 
 def measure_white():
     if _USE_RGB_WHITE_LEDS:
-        led.set_lightsensorbar_led(led.WHITE)
+        led.set_lightsensorbar_rgb(led.WHITE)
     if _USE_WHITE_LEDS:
         led.set_lightsensorbar_white(True)
     for sens in sensor.all:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
-    led.set_lightsensorbar_led(led.OFF)
+    led.set_lightsensorbar_rgb(led.OFF)
     led.set_lightsensorbar_white(False)
 
 
@@ -69,11 +69,11 @@ def outer_see_dark() -> bool:
 
 
 def get_linefollower_diff() -> float:
-    diff_outside = sensor.all[0].val - sensor.all[6].val
-    diff_middle = sensor.all[1].val - sensor.all[5].val
+    # diff_outside = sensor.all[0].val - sensor.all[6].val
+    # diff_middle = sensor.all[1].val - sensor.all[5].val
     diff_inside = sensor.all[2].val - sensor.all[4].val
-    diff = diff_inside + diff_middle * 1.5 + diff_outside * 2  # needs finetuning
-    return diff
+    diff = diff_inside  # + diff_middle * 1.5 + diff_outside * 2  # needs finetuning
+    return diff // 40
 
 
 def decide_crossroad(values: list[list[COLOR]]) -> DIRECTION:
@@ -161,11 +161,12 @@ green_right = _GreenFilter(
 def test_white():
     while True:
         measure_white()
-        print("_raw_white_light")
-        time.sleep_ms(500)
+        # print("_raw_white_light")
+        print([sens.val for sens in sensor.all])
+        time.sleep_ms(100)
 
 
-def test_raw_all():
+def test_all():
     while True:
         measure_white()
         measure_green_red()
@@ -175,4 +176,16 @@ def test_raw_all():
         print([sens.val for sens in sensor.green])
         print("_raw_red_light: ", end='')
         print([sens.val for sens in sensor.red])
+        time.sleep_ms(100)
+
+
+def test_red_green():
+    while True:
+        measure_green_red()
+        print("red: ", end='')
+        print([sens.val for sens in sensor.red])
+        print("green: ", end='')
+        print([sens.val for sens in sensor.green])
+        print("red - green: ", end='')
+        print([sensor.red[i].val - sensor.green[i].val for i in range(4)])
         time.sleep_ms(100)
