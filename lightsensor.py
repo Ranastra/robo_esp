@@ -1,81 +1,90 @@
-from adc_multi import read_raw_adc, set_channel
-import pinesp32 as p
+import adc_multi
 import led
 import time
-from sensor import all_sensors, green_sensors, red_sensors, Sensor
+import sensor
 
+_USE_WHITE_LEDS: bool = False
+_USE_RGB_WHITE_LEDS: bool = False
 
 ###### Level for colors ######
-_WHITE_LEVEL:int = 0
-_DARK_LEVEL:int = 0
-_RED_GREEN_DIFF_GREEN_LEVEL:int = 0
-_RED_GREEN_DIFF_RED_LEVEL:int = 0
-_WHITE_LEVEL_GREEN:int = 0
+_WHITE_LEVEL: int = 0
+_DARK_LEVEL: int = 0
+_RED_GREEN_DIFF_GREEN_LEVEL: int = 0
+_RED_GREEN_DIFF_RED_LEVEL: int = 0
+_WHITE_LEVEL_GREEN: int = 0
 
 ###### colors ######
 COLOR = int
-GREEN:COLOR = 2
-BLACK:COLOR = 1
-WHITE:COLOR = 0
-RED:COLOR = 3
-SILVER:COLOR = 4
+GREEN: COLOR = 2
+BLACK: COLOR = 1
+WHITE: COLOR = 0
+RED: COLOR = 3
+SILVER: COLOR = 4
 
 ###### directions ######
 DIRECTION = int
-FORWARD:DIRECTION = 0
-LEFT:DIRECTION = 1
-RIGHT:DIRECTION = -1
-BACKWARD:DIRECTION = 3
+FORWARD: DIRECTION = 0
+LEFT: DIRECTION = 1
+RIGHT: DIRECTION = -1
+BACKWARD: DIRECTION = 3
 
 ###### measure functions ######
 
+
 def measure_white():
-    led.set_lightsensorbar_white(True)
-    for sens in all_sensors:
-        set_channel(sens.channel)
-        sens.val = read_raw_adc()
+    if _USE_RGB_WHITE_LEDS:
+        led.set_lightsensorbar_led(led.WHITE)
+    if _USE_WHITE_LEDS:
+        led.set_lightsensorbar_white(True)
+    for sens in sensor.all:
+        adc_multi.set_channel(sens.channel)
+        sens.val = adc_multi.read_raw()
+    led.set_lightsensorbar_led(led.OFF)
     led.set_lightsensorbar_white(False)
 
 
 def measure_green_red() -> list[int]:
     led.set_lightsensorbar_led(led.GREEN)
-    for sens in green_sensors:
-        set_channel(sens.channel)
-        sens.val = read_raw_adc()
+    for sens in sensor.green:
+        adc_multi.set_channel(sens.channel)
+        sens.val = adc_multi.read_raw()
     led.set_lightsensorbar_led(led.RED)
-    for sens in red_sensors:
-        set_channel(sens.channel)
-        sens.val = read_raw_adc()
+    for sens in sensor.red:
+        adc_multi.set_channel(sens.channel)
+        sens.val = adc_multi.read_raw()
     led.set_lightsensorbar_led(led.OFF)
 
 
 ###### line follower functions ######
 
 def all_white() -> bool:
-    for sens in all_sensors:
+    for sens in sensor.all:
         if sens.map_raw_value() < _WHITE_LEVEL:
             return False
     return True
 
+
 def outer_see_dark() -> bool:
-    return all_sensors[0].val < _DARK_LEVEL or all_sensors[-1] < _DARK_LEVEL
+    return sensor.all[0].val < _DARK_LEVEL or sensor.all[-1] < _DARK_LEVEL
+
 
 def get_linefollower_diff() -> float:
-    diff_outside = all_sensors[0].val - all_sensors[6].val
-    diff_middle = all_sensors[1].val - all_sensors[5].val
-    diff_inside = all_sensors[2].val - all_sensors[4].val
-    diff = diff_inside + diff_middle * 1.5 + diff_outside * 2
+    diff_outside = sensor.all[0].val - sensor.all[6].val
+    diff_middle = sensor.all[1].val - sensor.all[5].val
+    diff_inside = sensor.all[2].val - sensor.all[4].val
+    diff = diff_inside + diff_middle * 1.5 + diff_outside * 2  # needs finetuning
     return diff
+
 
 def decide_crossroad(values: list[list[COLOR]]) -> DIRECTION:
     """ decide direction at crossroad """
-    l = values[0]
-    r = values[1]
+    left = values[0]
+    right = values[1]
     lg = 0
     rg = 0
-    if l[0] == GREEN and l[1] == BLACK:
+    if left[0] == GREEN and left[1] == BLACK:
         lg = 1
-    if r[0] == GREEN and r[1] == BLACK:
+    if right[0] == GREEN and right[1] == BLACK:
         rg = 1
     if lg == 1 and rg == 1:
         return BACKWARD
@@ -90,7 +99,13 @@ def decide_crossroad(values: list[list[COLOR]]) -> DIRECTION:
 ###### green filters ######
 
 class _GreenFilter():
-    def __init__(self, outer_sens_green:Sensor, inner_sens_green:Sensor, outer_sens_red:Sensor, inner_sens_red:Sensor):
+    def __init__(
+            self,
+            outer_sens_green: sensor.Sensor,
+            inner_sens_green: sensor.Sensor,
+            outer_sens_red: sensor.Sensor,
+            inner_sens_red: sensor.Sensor
+    ):
         self._outer_sens_green = outer_sens_green
         self._inner_sens_green = inner_sens_green
         self._outer_sens_red = outer_sens_red
@@ -126,18 +141,22 @@ class _GreenFilter():
                 return BLACK
         else:
             return GREEN
-        
+
     def reset(self):
         self._count_no_green = 0
         self._count_green = 0
         self._count_red = 0
         self._green = False
 
+
 ###### green filter instances ######
-green_left = _GreenFilter(green_sensors[0], green_sensors[1], red_sensors[0], red_sensors[1])
-green_right = _GreenFilter(green_sensors[3], green_sensors[2], red_sensors[3], red_sensors[2])
+green_left = _GreenFilter(
+    sensor.green[0], sensor.green[1], sensor.red[0], sensor.red[1])
+green_right = _GreenFilter(
+    sensor.green[3], sensor.green[2], sensor.red[3], sensor.red[2])
 
 ###### test functions ######
+
 
 def test_white():
     while True:
@@ -145,20 +164,15 @@ def test_white():
         print("_raw_white_light")
         time.sleep_ms(500)
 
-def test_adc():
-    set_channel(p.ADC_PT_M)
-    while True: 
-        print(read_raw_adc())
-        time.sleep_ms(500)
 
 def test_raw_all():
     while True:
         measure_white()
         measure_green_red()
         print("_raw_white_light: ", end='')
-        print([sens.val for sens in all_sensors])
+        print([sens.val for sens in sensor.all])
         print("_raw_green_light: ", end='')
-        print([sens.val for sens in green_sensors])
+        print([sens.val for sens in sensor.green])
         print("_raw_red_light: ", end='')
-        print([sens.val for sens in red_sensors])
-        time.sleep_ms(200)
+        print([sens.val for sens in sensor.red])
+        time.sleep_ms(100)

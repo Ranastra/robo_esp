@@ -1,6 +1,5 @@
 import pinesp32
-from time import sleep_ms
-from machine import Pin, ADC
+import machine
 
 # c++ https://github.com/waspinator/CD74HC4067
 
@@ -24,11 +23,12 @@ _g_channel_truth_table = [
     [1,  1,  1,  1]   # 15
 ]
 
-_S0 = Pin(pinesp32.S0, Pin.OUT)
-_S1 = Pin(pinesp32.S1, Pin.OUT)
-_S2 = Pin(pinesp32.S2, Pin.OUT)
-_S3 = Pin(pinesp32.S3, Pin.OUT)
-_ADC_MULTI = ADC(Pin(pinesp32.ADC_MULTI, Pin.IN))
+_S0 = machine.Pin(pinesp32.S0, machine.Pin.OUT)
+_S1 = machine.Pin(pinesp32.S1, machine.Pin.OUT)
+_S2 = machine.Pin(pinesp32.S2, machine.Pin.OUT)
+_S3 = machine.Pin(pinesp32.S3, machine.Pin.OUT)
+_ADC_MULTI = machine.ADC(machine.Pin(pinesp32.ADC_MULTI, machine.Pin.IN))
+
 
 def set_channel(channel: int):
     _S0.value(_g_channel_truth_table[channel][0])
@@ -36,5 +36,6 @@ def set_channel(channel: int):
     _S2.value(_g_channel_truth_table[channel][2])
     _S3.value(_g_channel_truth_table[channel][3])
 
-def read_raw_adc():
+
+def read_raw():
     return _ADC_MULTI.read_u16()
