@@ -6,13 +6,13 @@ S2 = 12
 S3 = 13
 ADC_MULTI = 39
 
-ADC_PT_REF_L = 0
+ADC_PT_REF_L = 0  # silver
 ADC_PT_L_1 = 1
 ADC_PT_L_0 = 2
 ADC_PT_M = 3
 ADC_PT_R_0 = 4
 ADC_PT_R_1 = 5
-ADC_PT_REF_R = 6
+ADC_PT_REF_R = 6  # silver
 ADC_PT_RGB = 7
 ADC_AE1 = 8  # External Analog Input
 ADC_AE2 = 9  # External Analog Input
@@ -52,7 +52,7 @@ SR_PT_GREEN = 7  # Light sensor bar green led
 
 SR_PT_BLUE = 8  # Light sensor bar blue led
 SR_LED_L_RED = 9  # LOW - ON
-SR_LED_L_GREEN = 10
+SR_LED_L_GREEN = 10  # status leds
 SR_LED_L_BLUE = 11
 SR_LED_R_RED = 12
 SR_LED_R_GREEN = 13

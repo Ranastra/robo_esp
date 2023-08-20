@@ -1,6 +1,6 @@
 import sensor
 import led
-from adc_multi import set_channel, read_raw_adc
+import adc_multi
 
 _PRINT_CALIB: bool = True
 _SAMPLE_NUMBERS: int = 1200
@@ -48,9 +48,9 @@ def read_calib():
 def calibrate():
     led.set_lightsensorbar_white(True)
     for sens in sensor.all:
-        set_channel(sens.channel)
+        adc_multi.set_channel(sens.channel)
         for _ in _SAMPLE_NUMBERS:
-            val = read_raw_adc()
+            val = adc_multi.read_raw()
             if val < sens.min_val:
                 sens.min_val = val
             elif val > sens.max_val:
@@ -58,18 +58,18 @@ def calibrate():
     led.set_lightsensorbar_white(False)
     led.set_lightsensorbar_rgb(led.GREEN)
     for sens in sensor.green:
-        set_channel(sens.channel)
+        adc_multi.set_channel(sens.channel)
         for _ in _SAMPLE_NUMBERS:
-            val = read_raw_adc()
+            val = adc_multi.read_raw()
             if val < sens.min_val:
                 sens.min_val = val
             elif val > sens.max_val:
                 sens.max_val = val
     led.set_lightsensorbar_rgb(led.RED)
     for sens in sensor.red:
-        set_channel(sens.channel)
+        adc_multi.set_channel(sens.channel)
         for _ in range(_SAMPLE_NUMBERS):
-            val = read_raw_adc()
+            val = adc_multi.read_raw()
             if val < sens.min_val:
                 sens.min_val = val
             elif val > sens.max_val:

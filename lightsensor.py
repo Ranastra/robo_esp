@@ -36,7 +36,7 @@ def measure_white():
         led.set_lightsensorbar_rgb(led.WHITE)
     if _USE_WHITE_LEDS:
         led.set_lightsensorbar_white(True)
-    for sens in sensor.all:
+    for sens in sensor.white:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
     led.set_lightsensorbar_rgb(led.OFF)
@@ -58,22 +58,21 @@ def measure_green_red() -> list[int]:
 ###### line follower functions ######
 
 def all_white() -> bool:
-    for sens in sensor.all:
+    for sens in sensor.white:
         if sens.map_raw_value() < _WHITE_LEVEL:
             return False
     return True
 
 
 def outer_see_dark() -> bool:
-    return sensor.all[0].val < _DARK_LEVEL or sensor.all[-1] < _DARK_LEVEL
+    return sensor.white[0].val < _DARK_LEVEL or sensor.white[-1] < _DARK_LEVEL
 
 
 def get_linefollower_diff() -> float:
-    # diff_outside = sensor.all[0].val - sensor.all[6].val
-    # diff_middle = sensor.all[1].val - sensor.all[5].val
-    diff_inside = sensor.all[2].val - sensor.all[4].val
-    diff = diff_inside  # + diff_middle * 1.5 + diff_outside * 2  # needs finetuning
-    return diff // 40
+    diff_middle = sensor.white[1].val - sensor.white[3].val
+    diff_inside = sensor.white[0].val - sensor.white[4].val
+    diff = diff_inside + diff_middle * 2
+    return diff // 25
 
 
 def decide_crossroad(values: list[list[COLOR]]) -> DIRECTION:
@@ -151,9 +150,17 @@ class _GreenFilter():
 
 ###### green filter instances ######
 green_left = _GreenFilter(
-    sensor.green[0], sensor.green[1], sensor.red[0], sensor.red[1])
+    sensor.green[0],
+    sensor.green[1],
+    sensor.red[0],
+    sensor.red[1]
+)
 green_right = _GreenFilter(
-    sensor.green[3], sensor.green[2], sensor.red[3], sensor.red[2])
+    sensor.green[3],
+    sensor.green[2],
+    sensor.red[3],
+    sensor.red[2]
+)
 
 ###### test functions ######
 
@@ -162,7 +169,7 @@ def test_white():
     while True:
         measure_white()
         # print("_raw_white_light")
-        print([sens.val for sens in sensor.all])
+        print([sens.val for sens in sensor.white])
         time.sleep_ms(100)
 
 
@@ -171,7 +178,7 @@ def test_all():
         measure_white()
         measure_green_red()
         print("_raw_white_light: ", end='')
-        print([sens.val for sens in sensor.all])
+        print([sens.val for sens in sensor.white])
         print("_raw_green_light: ", end='')
         print([sens.val for sens in sensor.green])
         print("_raw_red_light: ", end='')
