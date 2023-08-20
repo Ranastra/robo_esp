@@ -1,77 +1,81 @@
 import sensor
+import time
 import led
 import adc_multi
 
-_PRINT_CALIB: bool = True
+_PRINT_CALIB: bool = False
 _SAMPLE_NUMBERS: int = 1200
 
 
-def write_calib():
-    f = open("calib_data.txt", "r")
-    for sens in sensor.all:
-        f.write("%d %d\n" % (sens.min_val, sens.max_val))
+def write_to_file():
+    """write calibration data from sensor instances to calib_data.txt"""
+    f = open("calib_data.txt", "w")
+    for sens in sensor.white:
+        f.write("%d %d\n" % (sens.min, sens.max))
     for sens in sensor.green:
-        f.write("%d %d\n" % (sens.min_val, sens.max_val))
+        f.write("%d %d\n" % (sens.min, sens.max))
     for sens in sensor.red:
-        f.write("%d %d\n" % (sens.min_val, sens.max_val))
+        f.write("%d %d\n" % (sens.min, sens.max))
     f.close()
 
 
-def read_calib():
+def load_from_file():
+    """load calibration data from calib_data.txt to sensor instances"""
     try:
         f = open("calib_data.txt")
-        if _PRINT_CALIB:
-            print("white sensors:")
-        for sens in sensor.all:
+        for sens in sensor.white:
             value = f.readline().strip().split()
-            if _PRINT_CALIB:
-                print(sens.channel, value)
-            sens.min_val, sens.max_val = [int(val) for val in value]
-        if _PRINT_CALIB:
-            print("green sensors:")
+            sens.min, sens.max = [int(val) for val in value]
         for sens in sensor.green:
             value = f.readline().strip().split()
-            if _PRINT_CALIB:
-                print(sens.channel, value)
-            sens.min_val, sens.max_val = [int(val) for val in value]
-        if _PRINT_CALIB:
-            print("red sensors:")
+            sens.min, sens.max = [int(val) for val in value]
         for sens in sensor.red:
             value = f.readline().strip().split()
-            if _PRINT_CALIB:
-                print(sens.channel, value)
-            sens.min_val, sens.max_val = [int(val) for val in value]
+            sens.min, sens.max = [int(val) for val in value]
+        if _PRINT_CALIB:
+            print("calibration read")
+            show()
     except BaseException:
         pass
 
 
-def calibrate():
-    led.set_lightsensorbar_white(True)
-    for sens in sensor.all:
-        adc_multi.set_channel(sens.channel)
-        for _ in _SAMPLE_NUMBERS:
+def _calib(sensors):
+    """helper function calibrate sensor list"""
+    for sens in sensors:
+        sens.min = 4096
+        sens.max = 0
+    for _ in range(_SAMPLE_NUMBERS):
+        for sens in sensors:
+            adc_multi.set_channel(sens.channel)
             val = adc_multi.read_raw()
-            if val < sens.min_val:
-                sens.min_val = val
-            elif val > sens.max_val:
-                sens.max_val = val
+            sens.min = min(sens.min, val)
+            sens.max = max(sens.max, val)
+        time.sleep_ms(1)
+
+
+def start():
+    """do calibration"""
+    led.set_lightsensorbar_white(True)
+    _calib(sensor.white)
     led.set_lightsensorbar_white(False)
     led.set_lightsensorbar_rgb(led.GREEN)
-    for sens in sensor.green:
-        adc_multi.set_channel(sens.channel)
-        for _ in _SAMPLE_NUMBERS:
-            val = adc_multi.read_raw()
-            if val < sens.min_val:
-                sens.min_val = val
-            elif val > sens.max_val:
-                sens.max_val = val
+    _calib(sensor.green)
     led.set_lightsensorbar_rgb(led.RED)
-    for sens in sensor.red:
-        adc_multi.set_channel(sens.channel)
-        for _ in range(_SAMPLE_NUMBERS):
-            val = adc_multi.read_raw()
-            if val < sens.min_val:
-                sens.min_val = val
-            elif val > sens.max_val:
-                sens.max_val = val
+    _calib(sensor.red)
     led.set_lightsensorbar_rgb(led.OFF)
+    if _PRINT_CALIB:
+        print("calbration done")
+        show()
+
+
+def show():
+    """print calibration data from sensor instances"""
+    print("white:")
+    for sens in sensor.white:
+        print(sens.min, sens.max)
+    print("green:")
+    for sens in sensor.green:
+        print(sens.min, sens.max)
+    print("red:")
+    for sens in sensor.red:
+        print(sens.min, sens.max)

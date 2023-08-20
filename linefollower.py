@@ -1,3 +1,5 @@
+import led
+import calib
 import motor
 import lightsensor
 import time
@@ -17,6 +19,13 @@ def test_linefollower():
         # time.sleep_ms(100)
 
 
-test_linefollower()
+# test_linefollower()
 # lightsensor.test_white()
 # lightsensor.test_white()
+led.set_status_left(led.RED)
+# calib.start()
+calib.load_from_file()
+calib.show()
+# calib.write_to_file()
+led.set_status_left(led.GREEN)
+# lightsensor.test_red_green()

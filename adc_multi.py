@@ -36,6 +36,7 @@ _ADC_MULTI.atten(machine.ADC.ATTN_11DB)  # adjusts to input voltage
 
 
 def set_channel(channel: int):
+    """set channel of the ADC multiplexer"""
     _S0.value(_g_channel_truth_table[channel][0])
     _S1.value(_g_channel_truth_table[channel][1])
     _S2.value(_g_channel_truth_table[channel][2])
@@ -43,4 +44,5 @@ def set_channel(channel: int):
 
 
 def read_raw():
+    """read raw value with ADC"""
     return _ADC_MULTI.read()

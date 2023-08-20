@@ -6,15 +6,17 @@ import time
 
 print("motor got started")
 
-Mot = int
-MOT_A: Mot = 1
-MOT_B: Mot = 2
-MOT_AB: Mot = 3
+MOT = int
+MOT_A:  MOT = 1
+MOT_B:  MOT = 2
+MOT_AB: MOT = 3
+
 _PWMA: machine.PWM = machine.PWM(machine.Pin(pinesp32.PWMA))
 _PWMB: machine.PWM = machine.PWM(machine.Pin(pinesp32.PWMB))
 
 
-def drive(mot: Mot, speed: int):
+def drive(mot: MOT, speed: int):
+    """drive MOT with speed 0-100"""
     direction = speed < 0
     speed = int(min(math.fabs(speed), 100))
     shift_register.set(pinesp32.SR_STBY, True)
@@ -29,7 +31,8 @@ def drive(mot: Mot, speed: int):
     shift_register.write()
 
 
-def stop(mot: Mot):
+def stop(mot: MOT):
+    """stop given MOT"""
     if mot & MOT_A:
         _PWMA.duty_u16(0)
     if mot & MOT_B:
@@ -37,6 +40,7 @@ def stop(mot: Mot):
 
 
 def test():
+    """drive forward and backward 5 times"""
     time.sleep(5)
     for _ in range(5):
         drive(MOT_AB, 80)

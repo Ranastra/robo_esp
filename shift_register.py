@@ -12,6 +12,7 @@ _shift_register_bits: list[bool] = [False]*24
 
 
 def write():
+    """write to bits to shift register"""
     _STCP.value(0)
     for i in range(23, -1, -1):
         _SHCP.value(0)
@@ -21,13 +22,17 @@ def write():
 
 
 def set(pin: int, state: bool):
+    """toggle pin at shiftregister"""
     _shift_register_bits[pin] = state
 
 
 def reset():
+    """set all pins at shiftregister to off"""
     _STCP.value(0)
     for _ in range(24):
         _SHCP.value(0)
         _DS.value(0)
         _SHCP.value(1)
     _STCP.value(1)
+    for i in range(24):
+        _shift_register_bits[i] = False

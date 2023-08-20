@@ -1,12 +1,13 @@
 import machine
 import time
 import pinesp32
-
+# TODO need to clean up this mess
 
 # Für den SG90 wurden folgende Pulslängen empirisch bestimmt:
 # 0°    400us
 # 90°   1400us
 # 180°  2400us
+
 
 class Servo:
     def __init__(self, pin, min_us=400, max_us=2200):
