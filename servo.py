@@ -1,55 +1,58 @@
-import machine
-import time
 import pinesp32
-# TODO need to clean up this mess
+import time
+import machine
 
-# Für den SG90 wurden folgende Pulslängen empirisch bestimmt:
-# 0°    400us
-# 90°   1400us
-# 180°  2400us
+# min/max pulse witdh / pwm pulse width * duty cycle max
+_MIN_DUTY_CYCLE = 0.5/20.0 * 2**16
+_MAX_DUTY_CYCLE = 2.1/20.0 * 2**16
 
+SERVO = machine.PWM
 
-class Servo:
-    def __init__(self, pin, min_us=400, max_us=2200):
-
-        # Servo wird mit PWM signal mit Fequenz 50Hz gesteuert
-        # -> Periodendauer 20ms = 20000us
-        # -> Puls-Pausenverhältnis (duty cycle) wird über 16-Bit-Wert (0...65535) gesteuert
-
-        self.pwm = machine.PWM(machine.Pin(pin))
-        self.pwm.freq(50)
-
-        # Berechnung von min und max duty-cycle aus den uerbergebenen Pulslängen in ms
-        #   val_us        20000us
-        #   ------   =   -------
-        #   duty          65535
-
-        self.duty_min = (min_us*65535)//20000
-        self.duty_max = (max_us*65535)//20000
-
-        # Fuer die Umrechnung winkel nach duty cycle wird eine Geradengleichung
-        #   y= mx + n
-        # verwendet
-        #  n = duty_min
-        #  m  = (self.duty_max-self.duty_min)//180
-        self.delta_duty = self.duty_max-self.duty_min
-
-    def set(self, winkel):
-        self.pwm.duty_u16((self.delta_duty*winkel)//180 + self.duty_min)
-
-    def off(self):
-        self.pwm.duty_u16(0)
+ONE: SERVO = machine.PWM(
+    machine.Pin(pinesp32.SERVO1, mode=machine.Pin.OUT),
+    freq=50
+)
+TWO: SERVO = machine.PWM(
+    machine.Pin(pinesp32.SERVO2, mode=machine.Pin.OUT),
+    freq=50
+)
+THREE: SERVO = machine.PWM(
+    machine.Pin(pinesp32.SERVO3, mode=machine.Pin.OUT),
+    freq=50
+)
+FOUR: SERVO = machine.PWM(
+    machine.Pin(pinesp32.SERVO4, mode=machine.Pin.OUT),
+    freq=50
+)
 
 
-def test(servo_pin=pinesp32.SERVO1):
-    servo = Servo(servo_pin, min_us=450, max_us=2200)
-    while True:
-        servo.set(0)
-        print(0)
-        time.sleep(1)
-        servo.set(90)
-        print(90)
-        time.sleep(1)
-        servo.set(180)
-        print(180)
-        time.sleep(1)
+def set_angle(servo: SERVO, angle: int, wait_time_ms: int = 500):
+    """set angle of the servo -90 to +90 and wait for wait_time_ms"""
+    angle += 90
+    angle = max(0, min(angle, 180))
+    duty_cycle = _MIN_DUTY_CYCLE + \
+        (angle/180.0) * (_MAX_DUTY_CYCLE - _MIN_DUTY_CYCLE)
+    servo.duty_u16(int(duty_cycle))
+    time.sleep_ms(wait_time_ms)
+
+
+def off(servo: SERVO):
+    """turn off the servo"""
+    servo.duty_u16(0)
+
+
+def test(servo: SERVO):
+    """set angle for servo -90 to +90 in steps of 30 degrees"""
+    for angle in range(-90, 91, 30):
+        set_angle(servo, angle)
+        time.sleep_ms(1000)
+
+
+# mapping for max_pulse_width = 2.4ms linear?
+# 0 -> 0
+# 30 -> 40
+# 60 -> 85
+# 90 -> 130
+# 120 -> 150
+# 150 -> 180
+# 160 -> 190
