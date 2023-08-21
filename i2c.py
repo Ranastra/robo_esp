@@ -2,7 +2,7 @@ import machine
 import time
 import pinesp32
 
-_I2C = machine.I2C(
+I2C = machine.I2C(
     0,
     scl=machine.Pin(pinesp32.SCL),
     sda=machine.Pin(pinesp32.SDA)
@@ -13,7 +13,7 @@ def test():
     """scan for i2c devices"""
     while True:
         print("Scanning...")
-        devices = _I2C.scan()
+        devices = I2C.scan()
         if len(devices) == 0:
             print("No I2C devices found")
         else:

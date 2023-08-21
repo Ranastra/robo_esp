@@ -1,9 +1,11 @@
 # test dumb micropython
 
-# import machine
+import machine
+import ssd1306
 import adc_multi
 import lightsensor
-# import math
+import math
+import i2c
 
 print("micropython test .... run and than run away")
 
@@ -14,6 +16,10 @@ print("micropython test .... run and than run away")
 # print(math.fabs(-20))
 # print(math.fabs(20))
 
-# import math
 # print(dir(machine.ADC))
-lightsensor.test_white()
+# lightsensor.test_white()
+
+# print(dir(ssd1306))
+
+# i2c.test()  # addr 3C
+# print(dir(machine.I2C))
