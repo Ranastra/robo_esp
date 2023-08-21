@@ -72,7 +72,7 @@ def outer_see_dark() -> bool:
     return sensor.white[0].val < _DARK_LEVEL or sensor.white[-1] < _DARK_LEVEL
 
 
-def get_linefollower_diff_raw() -> float:
+def get_linefollower_diff_raw() -> int:
     """get linefollower diff without mapping to calibration"""
     diff_middle = sensor.white[1].val - sensor.white[3].val
     diff_inside = sensor.white[0].val - sensor.white[4].val
