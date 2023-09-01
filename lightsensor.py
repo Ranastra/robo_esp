@@ -72,7 +72,7 @@ def outer_see_dark() -> bool:
     return sensor.white[0].val < _DARK_LEVEL or sensor.white[-1] < _DARK_LEVEL
 
 
-def get_linefollower_diff_raw() -> int:
+def get_linefollower_diff() -> int:
     """get linefollower diff without mapping to calibration"""
     diff_middle = sensor.white[1].val - sensor.white[3].val
     diff_inside = sensor.white[0].val - sensor.white[4].val
@@ -80,7 +80,7 @@ def get_linefollower_diff_raw() -> int:
     return diff // 25
 
 
-def get_linefollower_diff() -> int:
+def get_linefollower_diff_calib() -> int:
     """get linefollower diff with mapping to calibration"""
     diff_midddle = (sensor.white[1].map_raw_value() -
                     sensor.white[3].map_raw_value())
@@ -127,8 +127,8 @@ class _GreenFilter():
         self._count_red = 0
 
     def get_color(self) -> COLOR:
-        green = self._green_sens.val
-        red = self._red_sens.val
+        green = self._green_sens.map_raw_value()
+        red = self._red_sens.map_raw_value()
         if green - red > _RED_GREEN_DIFF_GREEN_LEVEL:
             self._count_green += 1
             if self._count_green > 7:
@@ -205,4 +205,18 @@ def test_red_green():
         print([sens.val for sens in sensor.green])
         print("diff: ", end='')
         print([sensor.red[i].val - sensor.green[i].val for i in range(2)])
+        time.sleep_ms(100)
+
+
+def test_red_green_calib():
+    """print mapped red and green light values + difference"""
+    while True:
+        measure_green_red()
+        print("red: ", end='')
+        print([sens.map_raw_value() for sens in sensor.red])
+        print("green: ", end='')
+        print([sens.map_raw_value() for sens in sensor.green])
+        print("diff: ", end='')
+        print([sensor.red[i].map_raw_value() -
+              sensor.green[i].map_raw_value() for i in range(2)])
         time.sleep_ms(100)

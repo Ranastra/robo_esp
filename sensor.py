@@ -13,6 +13,7 @@ class Sensor():
     def map_raw_value(self) -> int:
         """ map raw value to range 0-100"""
         return ((self.val - self.min) * 100) // (self.max - self.min)
+        # return int(((self.val - self.min) // (self.max - self.min)))
 
 
 # Sensor instances
