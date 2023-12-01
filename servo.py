@@ -48,6 +48,36 @@ def test(servo: SERVO):
         time.sleep_ms(1000)
 
 
+def test_all0():
+    while True:
+        for angle in range(-90, 91, 30):
+            set_angle(ONE, angle)
+            set_angle(TWO, angle)
+            set_angle(THREE, angle)
+            set_angle(FOUR, angle)
+            time.sleep_ms(1000)
+
+
+def test_all():
+    while True:
+        for angle in range(-90, 91, 30):
+            set_angle(ONE, angle)
+            set_angle(TWO, angle)
+            set_angle(THREE, angle)
+            set_angle(FOUR, angle)
+            time.sleep_ms(1000)
+
+
+def test180():
+    while True:
+        for angle in [-90, 90]:
+            print(angle)
+            set_angle(ONE, angle)
+            set_angle(TWO, angle)
+            set_angle(THREE, angle)
+            set_angle(FOUR, angle)
+            time.sleep_ms(3000)
+
 # mapping for max_pulse_width = 2.4ms linear?
 # 0 -> 0
 # 30 -> 40

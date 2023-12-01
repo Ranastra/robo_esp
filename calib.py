@@ -1,10 +1,12 @@
+import adc_multi
+import led
 import sensor
 import time
-import led
-import adc_multi
 
 _PRINT_CALIB: bool = False
-_SAMPLE_NUMBERS: int = 1200
+_SAMPLE_NUMBERS: int = 3000
+
+print("calib...........crash")
 
 
 def write_to_file():
@@ -47,10 +49,10 @@ def _calib(sensors):
     for _ in range(_SAMPLE_NUMBERS):
         for sens in sensors:
             adc_multi.set_channel(sens.channel)
+            time.sleep_us(200)
             val = adc_multi.read_raw()
             sens.min = min(sens.min, val)
             sens.max = max(sens.max, val)
-        time.sleep_ms(1)
 
 
 def start():

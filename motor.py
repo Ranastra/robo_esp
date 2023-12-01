@@ -33,6 +33,8 @@ def drive(mot: MOT, speed: int):
 
 def stop(mot: MOT):
     """stop given MOT"""
+    if mot == MOT_AB:
+        shift_register.set(pinesp32.SR_STBY, False)
     if mot & MOT_A:
         _PWMA.duty_u16(0)
     if mot & MOT_B:
@@ -41,10 +43,18 @@ def stop(mot: MOT):
 
 def test():
     """drive forward and backward 5 times"""
-    time.sleep(5)
+    time.sleep(2)
     for _ in range(5):
+        # print("lal")
         drive(MOT_AB, 80)
         time.sleep(2)
         drive(MOT_AB, -80)
         time.sleep(2)
     stop(MOT_AB)
+
+
+def test_forward():
+    drive(MOT_AB, 100)
+    while True:
+        pass
+# test()

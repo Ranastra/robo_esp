@@ -9,6 +9,8 @@ _shift_register_bits: list[bool] = [False]*24
 
 # note: 3 shift registers * 8, 24 addr
 # DS data serial, SHCP clock serial pin, STCP storage serial pin
+# setting bits and writing them to the hardware is separated
+# write doesnt have a check whether any bits have been changed
 
 
 def write():
@@ -36,3 +38,6 @@ def reset():
     _STCP.value(1)
     for i in range(24):
         _shift_register_bits[i] = False
+
+
+reset()
