@@ -18,6 +18,13 @@ class Sensor():
 
 # Sensor instances
 
+# white: list[Sensor] = [
+#     Sensor(pinesp32.ADC_PT_L_1),
+#     Sensor(pinesp32.ADC_PT_L_0),
+#     Sensor(pinesp32.ADC_PT_M),
+#     Sensor(pinesp32.ADC_PT_R_0),
+#     Sensor(pinesp32.ADC_PT_R_1),
+# ]
 white: list[Sensor] = [
     Sensor(pinesp32.ADC_PT_L_1),
     Sensor(pinesp32.ADC_PT_L_0),
@@ -25,6 +32,7 @@ white: list[Sensor] = [
     Sensor(pinesp32.ADC_PT_R_0),
     Sensor(pinesp32.ADC_PT_R_1),
 ]
+
 
 green: list[Sensor] = [
     Sensor(pinesp32.ADC_PT_L_0),

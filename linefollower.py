@@ -158,29 +158,41 @@ def linefollower():
 
 
 def test_linefollower():
-    faktor = 2
+    faktor = 3
     base_v = 60
     while True:
         lightsensor.measure_white()
-        # diff = lightsensor.get_linefollower_diff_test()
         diff = lightsensor.get_linefollower_diff_calib()
-        # if abs(diff) < 8:
-        #     diff = 0
-        if diff < 0:
-            vr = base_v + abs(diff) * faktor
-            vl = base_v - abs(diff) * faktor
+        diff_outer = lightsensor.get_linefollower_diff_outside()
+        # if abs(diff_outer) > 70:
+        if False:
+            if diff_outer < 0:
+                vr = base_v
+                vl = -10
+            else:
+                vr = -10
+                vl = base_v
         else:
-            vl = base_v + abs(diff) * faktor
-            vr = base_v - abs(diff) * faktor
-
-        vl = max(0, vl)
-        vr = max(0, vr)
-
+            if diff < 0:
+                vr = base_v + abs(diff) * faktor
+                vl = base_v - abs(diff) * faktor
+            else:
+                vl = base_v + abs(diff) * faktor
+                vr = base_v - abs(diff) * faktor
+        # vl = max(0, vl)
+        # vr = max(0, vr)
         motor.drive(motor.MOT_A, vl)
         motor.drive(motor.MOT_B, vr)
-        # motor.drive(motor.MOT_A, base_v + diff)
-        # motor.drive(motor.MOT_B, base_v - diff)
-        # time.sleep_ms(2)
+
+
+def test_linefollower2():
+    # mit led in der mitte + sensor außen, blau umlöten, mittleres paar leds + mittlere sensoren
+    base_v = 60
+    while True:
+        lightsensor.measure_white()
+        diff = lightsensor.get_linefollower_diff_test() // 2
+        motor.drive(motor.MOT_A, base_v - diff)
+        motor.drive(motor.MOT_B, base_v + diff)
 
 
 def test_direction():

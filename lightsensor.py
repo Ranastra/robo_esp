@@ -11,7 +11,6 @@ _USE_RGB_WHITE_LEDS: bool = False
 
 ###### Level for colors ######
 _WHITE_LEVEL: int = 0
-_DARK_LEVEL: int = 0
 
 ###### colors ######
 COLOR = int
@@ -28,19 +27,20 @@ color_map = {GREEN: "green", RED: "reeed", BLACK: "black", WHITE: "white"}
 
 
 def measure_white():
-    """measuer sensors with white light"""
-    if _USE_RGB_WHITE_LEDS:
-        led.set_lightsensorbar_rgb(led.WHITE)
-    if _USE_WHITE_LEDS:
-        led.set_lightsensorbar_white(True)
+    """measure sensors with white light"""
+    led.set_lightsensorbar_white(True)
+    time.sleep_us(200)
     for sens in sensor.white:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
-    if _USE_WHITE_LEDS:
-        led.set_lightsensorbar_white(False)
-    if _USE_RGB_WHITE_LEDS:
-        led.set_lightsensorbar_rgb(led.OFF)
+    led.set_lightsensorbar_white(False)
     time.sleep_us(200)
+
+
+# def measure_white_rgb():
+#     """measure sensors with rgb led set to white"""
+#     led.set_lightsensorbar_rgb(led.WHITE)
+#     for sens in sensor.white:
 
 
 def measure_green_red() -> list[int]:
@@ -66,11 +66,6 @@ def all_white() -> bool:
     return True
 
 
-def outer_see_dark() -> bool:
-    """check if outer sensors see non white"""
-    return sensor.white[0].val < _DARK_LEVEL or sensor.white[-1] < _DARK_LEVEL
-
-
 def get_linefollower_diff() -> int:
     """get linefollower diff without mapping to calibration"""
     diff_middle = sensor.white[1].val - sensor.white[3].val
@@ -87,14 +82,17 @@ def get_linefollower_diff_calib() -> int:
                     sensor.white[4].map_raw_value())
     if abs(diff_outside) < 30:
         diff_outside = 0
-    # diff = diff_outside * 5 + diff_midddle
-    # diff = diff_outside * 3 + diff_midddle
-    # diff = diff_midddle * 5 + diff_outside
-    # diff = - math.sqrt(math.copysign(float(abs(diff_midddle)), diff_midddle))
     diff = math.copysign(
         math.sqrt(abs(float(diff_midddle))),
-        diff_midddle)*7 + diff_midddle
+        diff_midddle)*4 + diff_midddle
     return diff // 2
+
+
+def get_linefollower_diff_outside() -> int:
+    """return calib diff of outer sensors"""
+    diff_outside = (sensor.white[0].map_raw_value() -
+                    sensor.white[4].map_raw_value())
+    return diff_outside
 
 
 def get_linefollower_diff_test() -> int:
@@ -184,6 +182,7 @@ def test_green_red_diff():
 
 
 def test_linefollower_diffs_all():
+    """komisch"""
     while True:
         measure_white()
         diff_middle = sensor.white[1].val - sensor.white[3].val
@@ -192,6 +191,14 @@ def test_linefollower_diffs_all():
         print("middle: ", diff_middle)
         print("left: ", diff_left)
         print("right: ", diff_right)
+        time.sleep_ms(200)
+
+
+def test_outer_diff():
+    """print diff of outer white sensors"""
+    while True:
+        measure_white()
+        print(get_linefollower_diff_outside())
         time.sleep_ms(200)
 
 

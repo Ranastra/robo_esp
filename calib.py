@@ -34,6 +34,7 @@ def load_from_file():
         for sens in sensor.red:
             value = f.readline().strip().split()
             sens.min, sens.max = [int(val) for val in value]
+        f.close()
         if _PRINT_CALIB:
             print("calibration read")
             show()
@@ -45,7 +46,7 @@ def _calib(sensors):
     """helper function calibrate sensor list"""
     for sens in sensors:
         sens.min = 4096
-        sens.max = 0
+        sens.max = 1
     for _ in range(_SAMPLE_NUMBERS):
         for sens in sensors:
             adc_multi.set_channel(sens.channel)
