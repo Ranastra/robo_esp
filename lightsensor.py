@@ -29,12 +29,12 @@ color_map = {GREEN: "green", RED: "reeed", BLACK: "black", WHITE: "white"}
 def measure_white():
     """measure sensors with white light"""
     led.set_lightsensorbar_white(True)
-    time.sleep_us(200)
+    time.sleep_us(30)
     for sens in sensor.white:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
     led.set_lightsensorbar_white(False)
-    time.sleep_us(200)
+    time.sleep_us(30)
 
 
 # def measure_white_rgb():
@@ -43,17 +43,30 @@ def measure_white():
 #     for sens in sensor.white:
 
 
-def measure_green_red() -> list[int]:
+def measure_green_red():
     """measure sensors with green and red light"""
     led.set_lightsensorbar_rgb(led.GREEN)
+    time.sleep_us(10)
     for sens in sensor.green:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
     led.set_lightsensorbar_rgb(led.RED)
+    time.sleep_us(10)
     for sens in sensor.red:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
     led.set_lightsensorbar_rgb(led.OFF)
+    time.sleep_us(10)
+
+
+def measure_reflective():
+    led.set_lightsensorbar_white(True)
+    time.sleep_us(30)
+    for sens in sensor.silver:
+        adc_multi.set_channel(sens.channel)
+        sens.val = adc_multi.read_raw()
+    led.set_lightsensorbar_white(False)
+    time.sleep_us(30)
 
 
 ###### line follower functions ######
@@ -122,6 +135,13 @@ def test_white():
     while True:
         measure_white()
         print([sens.val for sens in sensor.white])
+        time.sleep_ms(100)
+
+
+def test_reflective():
+    while True:
+        measure_reflective()
+        print([sens.val for sens in sensor.silver])
         time.sleep_ms(100)
 
 

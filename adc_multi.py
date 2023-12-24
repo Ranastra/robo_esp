@@ -1,4 +1,5 @@
 import pinesp32
+import time
 import machine
 
 # c++ https://github.com/waspinator/CD74HC4067
@@ -41,6 +42,7 @@ def set_channel(channel: int):
     _S1.value(_g_channel_truth_table[channel][1])
     _S2.value(_g_channel_truth_table[channel][2])
     _S3.value(_g_channel_truth_table[channel][3])
+    time.sleep_us(1)
 
 
 def read_raw():

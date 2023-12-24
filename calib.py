@@ -59,13 +59,17 @@ def _calib(sensors):
 def start():
     """do calibration"""
     led.set_lightsensorbar_white(True)
+    time.sleep_us(20)
     _calib(sensor.white)
     led.set_lightsensorbar_white(False)
     led.set_lightsensorbar_rgb(led.GREEN)
+    time.sleep_us(20)
     _calib(sensor.green)
     led.set_lightsensorbar_rgb(led.RED)
+    time.sleep_us(20)
     _calib(sensor.red)
     led.set_lightsensorbar_rgb(led.OFF)
+    time.sleep_us(20)
     if _PRINT_CALIB:
         print("calbration done")
         show()

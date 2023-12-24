@@ -1,4 +1,5 @@
 import motor
+import sensor
 import time
 import calib
 import lightsensor
@@ -159,19 +160,19 @@ def linefollower():
 
 def test_linefollower():
     faktor = 3
-    base_v = 60
+    base_v = 100
     while True:
         lightsensor.measure_white()
         diff = lightsensor.get_linefollower_diff_calib()
         diff_outer = lightsensor.get_linefollower_diff_outside()
         # if abs(diff_outer) > 70:
-        if False:
+        if abs(diff_outer) > 70:
             if diff_outer < 0:
-                vr = base_v
-                vl = -10
+                vr = base_v + abs(diff_outer)
+                vl = base_v - abs(diff_outer) * faktor
             else:
-                vr = -10
-                vl = base_v
+                vl = base_v + abs(diff_outer)
+                vr = base_v - abs(diff_outer) * faktor
         else:
             if diff < 0:
                 vr = base_v + abs(diff) * faktor
@@ -190,7 +191,10 @@ def test_linefollower2():
     base_v = 60
     while True:
         lightsensor.measure_white()
-        diff = lightsensor.get_linefollower_diff_test() // 2
+        # lightsensor.measure_green_red()
+        # diff_midddle = (sensor.green[1].map_raw_value() -
+        #                 sensor.green[0].map_raw_value())
+        diff = lightsensor.get_linefollower_diff_test()
         motor.drive(motor.MOT_A, base_v - diff)
         motor.drive(motor.MOT_B, base_v + diff)
 
