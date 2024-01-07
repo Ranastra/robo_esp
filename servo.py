@@ -41,24 +41,15 @@ def off(servo: SERVO):
     servo.duty_u16(0)
 
 
-def test(servo: SERVO):
+def test_one(servo: SERVO):
     """set angle for servo -90 to +90 in steps of 30 degrees"""
     for angle in range(-90, 91, 30):
         set_angle(servo, angle)
         time.sleep_ms(1000)
 
 
-def test_all0():
-    while True:
-        for angle in range(-90, 91, 30):
-            set_angle(ONE, angle)
-            set_angle(TWO, angle)
-            set_angle(THREE, angle)
-            set_angle(FOUR, angle)
-            time.sleep_ms(1000)
-
-
 def test_all():
+    """all servos -90 to +90 in steps of 30 degrees"""
     while True:
         for angle in range(-90, 91, 30):
             set_angle(ONE, angle)
@@ -69,6 +60,7 @@ def test_all():
 
 
 def test180():
+    """all servos from -90 to +90 degrees"""
     while True:
         for angle in [-90, 90]:
             print(angle)

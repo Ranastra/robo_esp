@@ -5,7 +5,7 @@ _servo_grab = servo.FOUR
 
 
 def up():
-    servo.set_angle(_servo_turn, 0)
+    servo.set_angle(_servo_turn, -60)
 
 
 def down():

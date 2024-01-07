@@ -10,7 +10,8 @@ _USE_WHITE_LEDS: bool = True
 _USE_RGB_WHITE_LEDS: bool = False
 
 ###### Level for colors ######
-_WHITE_LEVEL: int = 0
+_WHITE_LEVEL: int = 20
+_SILVER_LEVEL: int = 120
 
 ###### colors ######
 COLOR = int
@@ -23,7 +24,6 @@ SILVER: COLOR = 4
 color_map = {GREEN: "green", RED: "reeed", BLACK: "black", WHITE: "white"}
 
 ###### measure functions ######
-# dont turn off leds after measure
 
 
 def measure_white():
@@ -35,12 +35,6 @@ def measure_white():
         sens.val = adc_multi.read_raw()
     led.set_lightsensorbar_white(False)
     time.sleep_us(30)
-
-
-# def measure_white_rgb():
-#     """measure sensors with rgb led set to white"""
-#     led.set_lightsensorbar_rgb(led.WHITE)
-#     for sens in sensor.white:
 
 
 def measure_green_red():
@@ -60,6 +54,7 @@ def measure_green_red():
 
 
 def measure_reflective():
+    """measure silver sensors"""
     led.set_lightsensorbar_white(True)
     time.sleep_us(30)
     for sens in sensor.silver:
@@ -73,7 +68,7 @@ def measure_reflective():
 
 def all_white() -> bool:
     """check if all sensors see white"""
-    for sens in sensor.white:
+    for sens in sensor.white[1:3]:
         if sens.map_raw_value() < _WHITE_LEVEL:
             return False
     return True
@@ -108,12 +103,6 @@ def get_linefollower_diff_outside() -> int:
     return diff_outside
 
 
-def get_linefollower_diff_test() -> int:
-    diff_midddle = (sensor.white[3].map_raw_value() -
-                    sensor.white[1].map_raw_value())
-    return diff_midddle
-
-
 def get_green_red_diff() -> int:
     """get difference between green and red"""
     return [
@@ -127,7 +116,14 @@ def get_green() -> list[int]:
     return [sensor.green[0].map_raw_value(), sensor.green[1].map_raw_value()]
 
 
-###### test functions ######
+def on_silver():
+    """check if one sensor sees silver"""
+    for sens in sensor.silver:
+        if sens.map_raw_value() > _SILVER_LEVEL:
+            return True
+    return False
+
+    ###### test functions ######
 
 
 def test_white():
@@ -139,9 +135,11 @@ def test_white():
 
 
 def test_reflective():
+    """print raw silver light values"""
     while True:
         measure_reflective()
         print([sens.val for sens in sensor.silver])
+        print(on_silver())
         time.sleep_ms(100)
 
 
@@ -202,7 +200,7 @@ def test_green_red_diff():
 
 
 def test_linefollower_diffs_all():
-    """komisch"""
+    """print raw diffs of all white sensors"""
     while True:
         measure_white()
         diff_middle = sensor.white[1].val - sensor.white[3].val

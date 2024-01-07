@@ -18,6 +18,8 @@ def write_to_file():
         f.write("%d %d\n" % (sens.min, sens.max))
     for sens in sensor.red:
         f.write("%d %d\n" % (sens.min, sens.max))
+    for sens in sensor.silver:
+        f.write("%d %d\n" % (sens.min, sens.max))
     f.close()
 
 
@@ -34,15 +36,18 @@ def load_from_file():
         for sens in sensor.red:
             value = f.readline().strip().split()
             sens.min, sens.max = [int(val) for val in value]
+        for sens in sensor.silver:
+            value = f.readline().strip().split()
+            sens.min, sens.max = [int(val) for val in value]
         f.close()
         if _PRINT_CALIB:
             print("calibration read")
             show()
     except BaseException:
-        pass
+        print("failed to read calibration from file")
 
 
-def _calib(sensors):
+def _calib(sensors: list[sensor.Sensor]):
     """helper function calibrate sensor list"""
     for sens in sensors:
         sens.min = 4096
@@ -69,6 +74,10 @@ def start():
     time.sleep_us(20)
     _calib(sensor.red)
     led.set_lightsensorbar_rgb(led.OFF)
+    led.set_lightsensorbar_white(True)
+    time.sleep_us(20)
+    _calib(sensor.silver)
+    led.set_lightsensorbar_white(False)
     time.sleep_us(20)
     if _PRINT_CALIB:
         print("calbration done")
@@ -85,4 +94,7 @@ def show():
         print(sens.min, sens.max)
     print("red:")
     for sens in sensor.red:
+        print(sens.min, sens.max)
+    print("silver:")
+    for sens in sensor.silver:
         print(sens.min, sens.max)

@@ -37,17 +37,10 @@ def get() -> list[lightsensor.COLOR]:
             if _left_right[i].count_green > _GREEN_COUNT_LEVEL:
                 _left_right[i].count_green = 0
                 _left_right[i].green = True
-                if i == 1:
-                    led.set_status_right_locked(led.GREEN)
-                else:
-                    led.set_status_left_locked(led.GREEN)
         elif diff[i] < _RED_GREEN_DIFF_RED_LEVEL:
             _left_right[i].count_red += 1
             if _left_right[i].count_red > _RED_COUNT_LEVEL:
-                if i == 1:
-                    led.set_status_right_locked(led.RED)
-                else:
-                    led.set_status_left_locked(led.RED)
+                led.set_status_locked(i, led.RED)
                 colors[i] = lightsensor.RED
                 continue
         else:
@@ -59,10 +52,13 @@ def get() -> list[lightsensor.COLOR]:
         if not _left_right[i].green:
             if green[i] > _WHITE_LEVEL_GREEN:
                 colors[i] = lightsensor.WHITE
+                led.set_status_locked(i, led.WHITE)
             else:
                 colors[i] = lightsensor.BLACK
+                led.set_status_locked(i, led.OFF)
         else:
             colors[i] = lightsensor.GREEN
+            led.set_status_locked(i, led.GREEN)
     return colors
 
 

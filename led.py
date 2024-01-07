@@ -27,32 +27,12 @@ _status_left = OFF
 _status_right = OFF
 
 
-def set_status_left_locked(color: COLOR):
-    """set color of left status LED and check if color is already set"""
-    global _status_left
-    if _status_left == color:
-        pass
-    else:
-        set_status_left(color)
-        _status_left = color
-
-
 def set_status_left(color: COLOR):
     """set color of left status LED"""
     shift_register.set(pinesp32.SR_LED_L_RED, color[0])
     shift_register.set(pinesp32.SR_LED_L_GREEN, color[1])
     shift_register.set(pinesp32.SR_LED_L_BLUE, color[2])
     shift_register.write()
-
-
-def set_status_right_locked(color: COLOR):
-    """set color of right status LED and check if color is already set"""
-    global _status_right
-    if _status_right == color:
-        pass
-    else:
-        set_status_right(color)
-        _status_right = color
 
 
 def set_status_right(color: COLOR):
@@ -63,7 +43,22 @@ def set_status_right(color: COLOR):
     shift_register.write()
 
 
+def set_status_locked(direction: int, color: COLOR):
+    """set color of status LED and check if color is already set"""
+    if direction % 2 == 0:
+        global _status_left
+        if _status_left != color:
+            set_status_left(color)
+            _status_left = color
+    if direction >= 1:
+        global _status_right
+        if _status_right != color:
+            set_status_right(color)
+            _status_right = color
+
+
 ###### lightsensorbar leds ######
+
 
 def set_lightsensorbar_rgb(color: COLOR):
     """set color of status LED on lightsensorbar"""

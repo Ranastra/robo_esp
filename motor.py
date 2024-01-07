@@ -45,7 +45,6 @@ def test():
     """drive forward and backward 5 times"""
     time.sleep(2)
     for _ in range(5):
-        # print("lal")
         drive(MOT_AB, 80)
         time.sleep(2)
         drive(MOT_AB, -80)
@@ -54,6 +53,7 @@ def test():
 
 
 def test_forward():
+    """drive forward with max speed"""
     drive(MOT_AB, 100)
     while True:
         pass

@@ -6,12 +6,14 @@ import machine
 # Constants
 _TIME_DISABLE_BUTTON_MS = 300
 
-# Rotary Encoder + Button variables
+# Rotary Encoder Pins
 _ENC_A = machine.Pin(pinesp32.ENC_A, machine.Pin.IN)
 _ENC_B = machine.Pin(pinesp32.ENC_B, machine.Pin.IN)
 _ENC_SW = machine.Pin(pinesp32.ENC_SW, machine.Pin.IN)
-_last_state_a = _ENC_A.value()
+
+# state variables
 state = 0
+_last_state_a = _ENC_A.value()
 _time_stamp_button = time.ticks_ms()
 _button_pressed = False
 
