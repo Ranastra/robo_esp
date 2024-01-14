@@ -57,4 +57,3 @@ def test_forward():
     drive(MOT_AB, 100)
     while True:
         pass
-# test()

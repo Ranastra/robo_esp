@@ -40,17 +40,17 @@ def measure_white():
 def measure_green_red():
     """measure sensors with green and red light"""
     led.set_lightsensorbar_rgb(led.GREEN)
-    time.sleep_us(10)
+    time.sleep_us(15)
     for sens in sensor.green:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
     led.set_lightsensorbar_rgb(led.RED)
-    time.sleep_us(10)
+    time.sleep_us(15)
     for sens in sensor.red:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
     led.set_lightsensorbar_rgb(led.OFF)
-    time.sleep_us(10)
+    time.sleep_us(15)
 
 
 def measure_reflective():

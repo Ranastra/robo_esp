@@ -60,10 +60,13 @@ def run():
     # servo.test180()
 
     # button ###################################
-    # button.test()
+    button.test()
 
     # speed ####################################
     # measure_rate()
+
+    # grappler
+    # grappler.down()
     pass
 
 

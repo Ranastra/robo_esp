@@ -2,8 +2,9 @@ import pinesp32
 import time
 import machine
 
-# something wrong with T_L
-left = machine.Pin(pinesp32.T_M, machine.Pin.IN, machine.Pin.PULL_DOWN)
+# middle = machine.Pin(pinesp32.T_M, machine.Pin.IN, machine.Pin.PULL_DOWN)
+left = machine.Pin(pinesp32.T_L, machine.Pin.IN,
+                   machine.Pin.PULL_UP)  # is inverted
 right = machine.Pin(pinesp32.T_R, machine.Pin.IN, machine.Pin.PULL_DOWN)
 
 

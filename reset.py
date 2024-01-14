@@ -13,14 +13,15 @@ def reset_hardware():
     # grappler to starting position
     import grappler
     grappler.up()
-    grappler.grab()
+    # grappler.loose()
 
     # servo off
     import servo
+    servo.set_angle(servo.FOUR, -90)
     servo.off(servo.ONE)
     servo.off(servo.TWO)
     servo.off(servo.THREE)
-    servo.off(servo.FOUR)
+    # servo.off(servo.FOUR)
 
 
 def clear_modules():

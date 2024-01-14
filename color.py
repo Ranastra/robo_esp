@@ -62,6 +62,10 @@ def get() -> list[lightsensor.COLOR]:
     return colors
 
 
+def get_escape():
+    pass
+
+
 def reset():
     _left_right[0] = _Green_Counters()
     _left_right[1] = _Green_Counters()

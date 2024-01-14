@@ -110,9 +110,12 @@ def drive_angle(angle: float):
 
 def turn_direction(direction: DIRECTION):
     """turn direction at crossroad with some corrections"""
-    V0 = 100
-    motor.drive(motor.MOT_AB, V0)
-    time.sleep_ms(100)
+    # TODO verschiedene Geschwindikeiten oder stottern
+    # TODO basic linefollower
+    V0 = 70
+    if direction != BACKWARD:
+        motor.drive(motor.MOT_AB, V0)
+        time.sleep_ms(200)
     gyro.reset()
     if direction == LEFT:
         drive_angle(-80.0)
@@ -120,8 +123,9 @@ def turn_direction(direction: DIRECTION):
         drive_angle(80.0)
     elif direction == BACKWARD:
         drive_angle(180.0)
-    motor.drive(motor.MOT_AB, V0)
-    time.sleep_ms(200)
+    # motor.drive(motor.MOT_AB, V0)
+    # time.sleep_ms(200)
+    basic_linefollower(200)
     motor.stop(motor.MOT_AB)
 
 
@@ -129,10 +133,37 @@ def run():
     pass
 
 
+def basic_linefollower(t_ms: int):
+    # TODO umbauen zu time im loop
+    end = time.ticks_ms() + t_ms
+    faktor = 3
+    V0 = 60
+    while end > time.ticks_ms():
+        lightsensor.measure_white()
+        diff = lightsensor.get_linefollower_diff_calib()
+        diff_outer = lightsensor.get_linefollower_diff_outside()
+        if abs(diff_outer) > 70:
+            if diff_outer < 0:
+                vr = V0 + abs(diff_outer)
+                vl = V0 - abs(diff_outer) * faktor
+            else:
+                vl = V0 + abs(diff_outer)
+                vr = V0 - abs(diff_outer) * faktor
+        else:
+            if diff < 0:
+                vr = V0 + abs(diff) * faktor
+                vl = V0 - abs(diff) * faktor
+            else:
+                vl = V0 + abs(diff) * faktor
+                vr = V0 - abs(diff) * faktor
+        motor.drive(motor.MOT_A, vl)
+        motor.drive(motor.MOT_B, vr)
+
+
 def test_linefollower():
     """monster test :)"""
     faktor = 3
-    V0 = 100
+    V0 = 60
     led.set_status_left(led.OFF)
     led.set_status_right(led.OFF)
     while True:
@@ -157,7 +188,7 @@ def test_linefollower():
         motor.drive(motor.MOT_A, vl)
         motor.drive(motor.MOT_B, vr)
         # check for colors
-        for _ in range(7):
+        for _ in range(5):
             lightsensor.measure_green_red()
             (color_left, color_right) = color.get()
         if color_left == lightsensor.GREEN or color_right == lightsensor.GREEN:
@@ -185,11 +216,11 @@ def test_linefollower():
 
 def drive_around_object(direction: DIRECTION):
     """drive around an object after collision"""
-    V0 = 85
+    V0 = 75
     motor.drive(motor.MOT_AB, -60)
     led.set_status_locked(2, led.CYAN)
     time.sleep_ms(100)
-    vdiff = 70
+    vdiff = 60
     drive_angle(-90.0*direction)
     motor.drive(motor.MOT_AB, V0)
     time.sleep_ms(200)
