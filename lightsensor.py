@@ -123,7 +123,16 @@ def on_silver():
             return True
     return False
 
-    ###### test functions ######
+
+def is_hovered() -> bool:
+    """check if the robot is hovered in the air"""
+    for sens in sensor.white:
+        if sens.map_raw_value() < -50:
+            return True
+    else:
+        return False
+
+###### test functions ######
 
 
 def test_white():
