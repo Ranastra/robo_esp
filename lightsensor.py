@@ -12,6 +12,7 @@ _USE_RGB_WHITE_LEDS: bool = False
 ###### Level for colors ######
 _WHITE_LEVEL: int = 20
 _SILVER_LEVEL: int = 120
+_DARK_LEVEL: int = 30
 
 ###### colors ######
 COLOR = int
@@ -127,12 +128,27 @@ def on_silver():
 def is_hovered() -> bool:
     """check if the robot is hovered in the air"""
     for sens in sensor.white:
-        if sens.map_raw_value() < -50:
+        if sens.map_raw_value() < -30:
             return True
     else:
         return False
 
+
+def inner_see_dark() -> bool:
+    """check if the inner sensors see dark"""
+    return (sensor.white[1].map_raw_value() < _DARK_LEVEL or
+            sensor.white[3].map_raw_value() < _DARK_LEVEL)
+
 ###### test functions ######
+
+
+def test_inner_see_dark():
+    """print inner_see_dark"""
+    # TODO actually test that!!!
+    while True:
+        measure_white()
+        print(inner_see_dark())
+        time.sleep_ms(100)
 
 
 def test_white():

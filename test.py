@@ -8,6 +8,9 @@ import servo
 import button
 import time
 import grappler
+import reset
+import i2c
+import tof
 
 
 def measure_rate():
@@ -21,6 +24,7 @@ def measure_rate():
 
 
 def run():
+    reset.reset_hardware()
     # lightsensor ##############################
     # lightsensor.test_reflective()
     # lightsensor.test_outer_diff()
@@ -42,10 +46,12 @@ def run():
     # led.set_status_right(led.OFF)
 
     # linefollower #############################
-    linefollower.test_linefollower()
+    # linefollower.test_linefollower()
     # linefollower.test_turn_direction()
     # linefollower.test_crossroad()
     # linefollower.test_turn_angle()
+    # linefollower.drive_around_object(linefollower.LEFT)
+    # linefollower.test_watch_hover()
 
     # gyro #####################################
     # gyro.test()
@@ -60,13 +66,19 @@ def run():
     # servo.test180()
 
     # button ###################################
-    button.test()
+    # button.test()
 
     # speed ####################################
     # measure_rate()
 
     # grappler
     # grappler.down()
+
+    # i2c ######################################
+    # i2c.test()
+
+    # tof ######################################
+    tof.test()
     pass
 
 

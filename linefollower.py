@@ -5,6 +5,7 @@ import color
 import led
 import gyro
 import button
+import sensor
 
 # this module will host helper functions for the linefollower
 # combining sensors, motor and decision making
@@ -23,7 +24,7 @@ direction_map = {FORWARD: "forward", LEFT: "left",
 V0: int = 50
 
 # flags
-CHECK_FOR_HOVER = True
+CHECK_FOR_HOVER: bool = True
 
 
 def decide_crossroad(values: list[list[lightsensor.COLOR]]) -> DIRECTION:
@@ -43,7 +44,7 @@ def decide_crossroad(values: list[list[lightsensor.COLOR]]) -> DIRECTION:
 def watch_hover():
     """check if the robot is hovered in the air"""
     if CHECK_FOR_HOVER and lightsensor.is_hovered():
-        motor.off(motor.MOT_AB)
+        motor.stop(motor.MOT_AB)
         while lightsensor.is_hovered():
             lightsensor.measure_white()
 
@@ -122,9 +123,12 @@ def turn_direction(direction: DIRECTION):
     """turn direction at crossroad with some corrections"""
     # TODO verschiedene Geschwindikeiten oder stottern
     V0 = 70
+    # try correcting with gyro # TODO
+    # drive_angle(-gyro.angle[2])  # this will prob break everything
+    # drive a bit forward
     if direction != BACKWARD:
         motor.drive(motor.MOT_AB, V0)
-        time.sleep_ms(200)
+        time.sleep_ms(100)
     gyro.reset()
     if direction == LEFT:
         drive_angle(-80.0)
@@ -132,8 +136,8 @@ def turn_direction(direction: DIRECTION):
         drive_angle(80.0)
     elif direction == BACKWARD:
         drive_angle(180.0)
-    # motor.drive(motor.MOT_AB, V0)
-    # time.sleep_ms(200)
+    motor.drive(motor.MOT_AB, V0)
+    time.sleep_ms(200)
     motor.stop(motor.MOT_AB)
 
 
@@ -141,12 +145,14 @@ def run():
     pass
 
 
-def test_linefollower():
-    """monster test :)"""
+def test_linefollower(basic_time_end=0):
+    """linefollower"""
     faktor = 3
     V0 = 60
-    basic_linefollower_flag = False
-    basic_linefollower_time_end = time.ticks_ms()
+    if basic_time_end == 0:
+        basic_time_end, basic_flag = time.ticks_ms(), False
+    else:
+        basic_flag = True
     while True:
         # normal linefollowing
         lightsensor.measure_white()
@@ -168,51 +174,55 @@ def test_linefollower():
                 vr = V0 - abs(diff) * faktor
         motor.drive(motor.MOT_A, vl)
         motor.drive(motor.MOT_B, vr)
+        # check for negative light values
         watch_hover()
-        # check for colors
-        if not basic_linefollower_flag:
-            for _ in range(5):
+        # check for events
+        if not basic_flag:
+            # if True:
+            for _ in range(3):
                 lightsensor.measure_green_red()
                 (color_l, color_r) = color.get()
+            lightsensor.measure_reflective()
             if color_l == lightsensor.GREEN or color_r == lightsensor.GREEN:
+                # check for green
                 if color_l == lightsensor.GREEN:
                     vals = drive_off_green(LEFT)
                 else:
                     vals = drive_off_green(RIGHT)
                 direction = decide_crossroad(vals)
                 turn_direction(direction)
-                basic_linefollower_flag = True
-                basic_linefollower_time_end = time.ticks_ms() + 200
+                basic_time_end, basic_flag = time.ticks_ms() + 700, True
             elif color_l == lightsensor.RED or color_r == lightsensor.RED:
+                # check for red
                 motor.stop(motor.MOT_AB)
-                break
-            # check for collisions
-            if not button.left.value() or not button.right.value():
-                drive_around_object(LEFT)
-                basic_linefollower_flag = True
-                basic_linefollower_time_end = time.ticks_ms() + 100
-            # check for reflective
-            lightsensor.measure_reflective()
-            if lightsensor.on_silver():
-                print("silver")
+                return
+            elif lightsensor.on_silver():
+                # check for reflective
                 motor.stop(motor.MOT_AB)
                 led.set_status_locked(2, led.WHITE)
                 time.sleep_ms(1000)
                 return
+            elif not button.left.value() or not button.right.value():
+                # check for collisions
+                drive_around_object(LEFT)
+                basic_time_end, basic_flag = time.ticks_ms() + 300, True
+            # TODO try correcting with gyro
+            # if lightsensor.inner_see_dark():
+            #     gyro.active_update()
         else:
-            basic_linefollower_flag = time.ticks_ms() < basic_linefollower_time_end
+            basic_flag = time.ticks_ms() < basic_time_end
 
 
 def drive_around_object(direction: DIRECTION):
     """drive around an object after collision"""
-    V0 = 75
+    V0 = 83
     motor.drive(motor.MOT_AB, -60)
     led.set_status_locked(2, led.CYAN)
-    time.sleep_ms(100)
-    vdiff = 60
-    drive_angle(-90.0*direction)
+    time.sleep_ms(350)
+    vdiff = 70
+    drive_angle(-70.0*direction)
     motor.drive(motor.MOT_AB, V0)
-    time.sleep_ms(200)
+    time.sleep_ms(100)
     motor.drive(motor.MOT_A, V0 + vdiff*direction)
     motor.drive(motor.MOT_B, V0 - vdiff*direction)
     lightsensor.measure_white()
@@ -222,8 +232,8 @@ def drive_around_object(direction: DIRECTION):
             break
         lightsensor.measure_white()
     motor.drive(motor.MOT_AB, V0)
-    time.sleep_ms(300)
-    drive_angle(-80.0*direction)
+    time.sleep_ms(150)
+    drive_angle(-90.0*direction)
 
 
 def test_crossroad():
@@ -265,6 +275,18 @@ def test_turn_direction():
         print("backward")
         turn_direction(BACKWARD)
         time.sleep(1)
+
+
+def test_watch_hover():
+    while True:
+        print("watching")
+        lightsensor.measure_white()
+        for sens in sensor.white:
+            print(sens.map_raw_value(), end=" ")
+        print()
+        watch_hover()
+        print("end")
+        time.sleep_ms(300)
 
 
 def test_turn_angle():
