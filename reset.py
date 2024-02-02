@@ -24,8 +24,8 @@ def reset_hardware():
     time.sleep_ms(500)
     servo.off(servo.ONE)
     servo.off(servo.TWO)
-    # servo.off(servo.THREE)
-    # servo.off(servo.FOUR)
+    servo.off(servo.THREE)
+    servo.off(servo.FOUR)
 
 
 def clear_modules():

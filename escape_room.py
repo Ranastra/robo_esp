@@ -5,6 +5,8 @@ import grappler
 import color
 import gyro
 import pinesp32
+import tof
+import motor
 
 
 def run():
@@ -49,6 +51,68 @@ def scan_for_ball() -> int:
     pass
 
 
+def test_drive_360():
+    motor.drive(motor.MOT_A, 50)
+    motor.drive(motor.MOT_B, -50)
+    tof.set(tof.TWO)
+    last = tof.read()
+    avg = last
+    while True:
+        while last == tof.read():
+            pass
+        now = tof.read()
+        print(now, last / avg, avg)
+        avg = (last * 2 + now) / 3
+        last = now
+
+
+def baaaaallll():
+    motor.drive(motor.MOT_A, 80)
+    motor.drive(motor.MOT_B, -80)
+    tof.set(tof.TWO)
+    upper = tof.read()
+    tof.set(tof.THREE)
+    lower = tof.read()
+    diff_av = upper - lower
+    while True:
+        tof.set(tof.TWO)
+        upper = tof.read()
+        tof.set(tof.THREE)
+        lower = tof.read()
+        diff = upper-lower
+        if upper < 700:
+            # if True:
+            diff_av = diff_av * 0.5 + diff * 0.5
+            if diff_av * 2 < diff:
+                print("BALLLLLLLl")
+                # break
+        print(upper, lower, diff, upper / lower)
+    print("stop")
+    motor.stop(motor.MOT_AB)
+    time.sleep_ms(500)
+    # dir_flag = 1
+    # while tof.read() > 50:
+    #     motor.drive(motor.MOT_AB, 70)
+    #     print("vorne")
+    #     time.sleep_ms(300)
+    #     motor.stop(motor.MOT_AB)
+    #     goal = tof.read() + 10
+    #     while True:
+    #         lower = tof.read()
+    #         if lower > goal:
+    #             break
+    #         motor.drive(motor.MOT_A, dir_flag*100)
+    #         motor.drive(motor.MOT_B, -dir_flag*100)
+    #         time.sleep_ms(100)
+    #         motor.stop(motor.MOT_AB)
+    #         time.sleep_ms(200)
+    #     dir_flag *= -1
+    # print("stop")
+    motor.stop(motor.MOT_AB)
+    # motor.drive(motor.MOT_A, 70)
+    # motor.drive(motor.MOT_B, -70)
+
+
 def pick_up_ball(loc: int):
     # do a combination of drive closer and reading sensors and turning
     # than grab the ball, retry some times
@@ -86,5 +150,9 @@ def escape_room():
                 break
             drive_around()
 
+
 # notes
 # check reflective an white sensors for silver, maybe better detection
+if __name__ == "__main__":
+    # baaaaallll()
+    test_drive_360()
