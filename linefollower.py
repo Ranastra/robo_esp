@@ -28,7 +28,7 @@ CHECK_FOR_HOVER: bool = True
 
 
 def decide_crossroad(values: list[list[lightsensor.COLOR]]) -> DIRECTION:
-    """ decide direction at crossroad """
+    """ decide direction at crossroad """  # TODO
     (left, right, first, second) = (0, 1, 0, 1)
     if values[left][first] == lightsensor.GREEN and values[right][first] == lightsensor.GREEN:
         if values[left][second] == lightsensor.BLACK and values[right][second] == lightsensor.BLACK:
@@ -36,9 +36,15 @@ def decide_crossroad(values: list[list[lightsensor.COLOR]]) -> DIRECTION:
         else:
             return FORWARD
     elif values[left][first] == lightsensor.GREEN:
-        return LEFT
+        if values[left][second] == lightsensor.WHITE:
+            return FORWARD
+        else:
+            return LEFT
     else:
-        return RIGHT
+        if values[right][second] == lightsensor.WHITE:
+            return FORWARD
+        else:
+            return RIGHT
 
 
 def watch_hover():
@@ -61,6 +67,9 @@ def until_green_end(direction: DIRECTION) -> list[int]:
                 (direction == LEFT and values[0] != lightsensor.GREEN) or
                 (direction == RIGHT and values[1] != lightsensor.GREEN)
         ):
+            # print(values)
+            # time.sleep_ms(50)
+            # values = color.get()
             return values
 
 
@@ -128,7 +137,7 @@ def turn_direction(direction: DIRECTION):
     # drive a bit forward
     if direction != BACKWARD:
         motor.drive(motor.MOT_AB, V0)
-        time.sleep_ms(100)
+        time.sleep_ms(200)
     gyro.reset()
     if direction == LEFT:
         drive_angle(-80.0)
@@ -142,13 +151,13 @@ def turn_direction(direction: DIRECTION):
 
 
 def run():
-    pass
+    test_linefollower()
 
 
 def test_linefollower(basic_time_end=0):
     """linefollower"""
     faktor = 3
-    V0 = 60
+    V0 = 50
     if basic_time_end == 0:
         basic_time_end, basic_flag = time.ticks_ms(), False
     else:
@@ -175,34 +184,41 @@ def test_linefollower(basic_time_end=0):
         motor.drive(motor.MOT_A, vl)
         motor.drive(motor.MOT_B, vr)
         # check for negative light values
-        watch_hover()
+        # watch_hover()
         # check for events
         if not basic_flag:
             # if True:
-            for _ in range(3):
+            for _ in range(5):
                 lightsensor.measure_green_red()
                 (color_l, color_r) = color.get()
             lightsensor.measure_reflective()
             if color_l == lightsensor.GREEN or color_r == lightsensor.GREEN:
+                print("greeeen")
                 # check for green
                 if color_l == lightsensor.GREEN:
                     vals = drive_off_green(LEFT)
                 else:
                     vals = drive_off_green(RIGHT)
                 direction = decide_crossroad(vals)
+                print(vals)
+                print(direction_map[direction])
+                time.sleep_ms(1000)
                 turn_direction(direction)
                 basic_time_end, basic_flag = time.ticks_ms() + 700, True
             elif color_l == lightsensor.RED or color_r == lightsensor.RED:
                 # check for red
+                print("reeed")
                 motor.stop(motor.MOT_AB)
-                return
+                time.sleep_ms(10_000)
             elif lightsensor.on_silver():
+                print("silveeeer")
                 # check for reflective
                 motor.stop(motor.MOT_AB)
                 led.set_status_locked(2, led.WHITE)
                 time.sleep_ms(1000)
                 return
             elif not button.left.value() or not button.right.value():
+                print("button")
                 # check for collisions
                 drive_around_object(LEFT)
                 basic_time_end, basic_flag = time.ticks_ms() + 300, True
@@ -219,7 +235,7 @@ def drive_around_object(direction: DIRECTION):
     motor.drive(motor.MOT_AB, -60)
     led.set_status_locked(2, led.CYAN)
     time.sleep_ms(350)
-    vdiff = 70
+    vdiff = 65
     drive_angle(-70.0*direction)
     motor.drive(motor.MOT_AB, V0)
     time.sleep_ms(100)
@@ -299,3 +315,16 @@ def test_turn_angle():
         print("right")
         drive_angle(90.0)
         time.sleep(1)
+
+
+def test_drive_forward_gyro():
+    """drive forward with gyro"""
+    gyro.calib()
+    gyro.reset()
+    while True:
+        gyro.update()
+        print(gyro.angle[0])
+
+
+if __name__ == "__main__":
+    run()

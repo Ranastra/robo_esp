@@ -5,14 +5,14 @@ import time
 # hopes that serves separation of concerns
 # somewhere here will live the color stuff for escape room too
 
-_RED_GREEN_DIFF_GREEN_LEVEL: int = 10  # green when value lower
-_RED_GREEN_DIFF_RED_LEVEL: int = -60  # red when value higher
-_WHITE_LEVEL_GREEN: int = 50
+_RED_GREEN_DIFF_GREEN_LEVEL: int = 5  # green when value lower
+_RED_GREEN_DIFF_RED_LEVEL: int = -55  # red when abs value higher
+_WHITE_LEVEL_GREEN: int = 60
 
 # _GREEN_COUNT_LEVEL: int = 7
 _GREEN_COUNT_LEVEL: int = 7
 # _RED_COUNT_LEVEL: int = 10
-_RED_COUNT_LEVEL: int = 10
+_RED_COUNT_LEVEL: int = 5
 
 
 class _Green_Counters():

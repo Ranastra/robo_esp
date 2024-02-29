@@ -27,7 +27,7 @@ def drive(mot: MOT, speed: int):
     if mot & MOT_B:
         shift_register.set(pinesp32.SR_BIN1, direction)
         shift_register.set(pinesp32.SR_BIN2, not direction)
-        _PWMB.duty_u16(speed * 655)
+        _PWMB.duty_u16(speed * 655)  # achtung schrott TODO
     shift_register.write()
 
 
@@ -47,9 +47,9 @@ def test():
     # for _ in range(5):
     while True:
         drive(MOT_AB, 80)
-        time.sleep(2)
+        time.sleep(4)
         drive(MOT_AB, -80)
-        time.sleep(2)
+        time.sleep(4)
     stop(MOT_AB)
 
 

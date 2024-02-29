@@ -49,7 +49,6 @@ def calib():
 
 
 ##### gyro active counters #####
-
 _MAX_ACTIVE_TIME_MS: int = 500
 _active: bool = False
 _active_timestamp: int = time.ticks_ms()

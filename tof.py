@@ -33,7 +33,7 @@ def set(tof: TOF):
         time.sleep_ms(2)
         _TOF.try_reset()
         start = time.ticks_ms()
-        while start + 1000 > time.ticks_ms() and read() == 0:
+        while start + 2000 > time.ticks_ms() and read() == 0:
             pass
 
 

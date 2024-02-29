@@ -11,7 +11,7 @@ _USE_RGB_WHITE_LEDS: bool = False
 
 ###### Level for colors ######
 _WHITE_LEVEL: int = 20
-_SILVER_LEVEL: int = 120
+_SILVER_LEVEL: int = 130
 _DARK_LEVEL: int = 30
 
 ###### colors ######
@@ -125,6 +125,11 @@ def on_silver():
     return False
 
 
+def silver():
+    """return silver bool of both sides"""
+    return [sens.map_raw_value() > _SILVER_LEVEL for sens in sensor.silver]
+
+
 def is_hovered() -> bool:
     """check if the robot is hovered in the air"""
     for sens in sensor.white:
@@ -164,6 +169,7 @@ def test_reflective():
     while True:
         measure_reflective()
         print([sens.val for sens in sensor.silver])
+        print([sens.map_raw_value() for sens in sensor.silver])
         print(on_silver())
         time.sleep_ms(100)
 
@@ -189,10 +195,13 @@ def test_all():
         measure_green_red()
         print("_raw_white_light: ", end='')
         print([sens.val for sens in sensor.white])
+        print([sens.map_raw_value() for sens in sensor.white])
         print("_raw_green_light: ", end='')
         print([sens.val for sens in sensor.green])
+        print([sens.map_raw_value() for sens in sensor.green])
         print("_raw_red_light: ", end='')
         print([sens.val for sens in sensor.red])
+        print([sens.map_raw_value() for sens in sensor.red])
         time.sleep_ms(100)
 
 

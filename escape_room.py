@@ -7,10 +7,14 @@ import gyro
 import pinesp32
 import tof
 import motor
+import tof
+import linefollower
+import button
 
 
 def run():
-    pass
+    drive_in_escape_room(0)
+    escape_room_without_balls()
 
 
 # plan lol
@@ -138,6 +142,51 @@ def drive_around():
     pass
 
 
+def drive_forward_until(f, v: int):
+    led.set_status_left(led.RED)
+    motor.stop(motor.MOT_AB)
+    gyro.reset()
+    motor.drive(motor.MOT_AB, v)
+    while f():
+        gyro.update()
+        # motor.drive(motor.MOT_A, v + 10*abs(gyro.angle[2]))
+        # motor.drive(motor.MOT_A, v - 10*abs(gyro.angle[2]))
+
+
+def drive_in_escape_room(recursion):
+    """drive until both sensors see silver"""
+    led.set_status_left(led.BLUE)
+    vals = lightsensor.silver()
+    print("tse")
+    motor.drive(motor.MOT_AB, -60)
+    time.sleep_ms(300)
+    motor.stop(motor.MOT_AB)
+    if vals[0]:
+        motor.drive(motor.MOT_B, 90)
+        while not vals[1]:
+            lightsensor.measure_reflective()
+            vals = lightsensor.silver()
+    if vals[1]:
+        motor.drive(motor.MOT_A, 90)
+        while not vals[0]:
+            lightsensor.measure_reflective()
+            vals = lightsensor.silver()
+    motor.stop(motor.MOT_AB)
+    if recursion:
+        motor.drive(motor.MOT_AB, -60)
+        time.sleep_ms(600)
+        for _ in range(5):
+            lightsensor.measure_reflective()
+
+        def until_silver() -> bool:
+            lightsensor.measure_reflective()
+            return not lightsensor.on_silver()
+        drive_forward_until(until_silver, 60)
+        # time.sleep_ms(300)
+        motor.stop(motor.MOT_AB)
+        drive_in_escape_room(recursion-1)
+
+
 def escape_room():
     number_balls_left = read_from_file()
     for _ in range(number_balls_left):
@@ -151,8 +200,62 @@ def escape_room():
             drive_around()
 
 
-# notes
-# check reflective an white sensors for silver, maybe better detection
+def wall_follower():
+    tof.set(tof.FOUR)
+    while True:
+        diff = 50 - tof.read()
+        # thats the formula to make gold with hay
+        motor.drive(motor.MOT_A, 50 - 11*diff/(abs(diff)**0.7+1))
+        motor.drive(motor.MOT_B, 50 + 11*diff/(abs(diff)**0.7+1))
+
+
+def escape_room_without_balls():
+    motor.stop(motor.MOT_AB)
+    led.set_status_locked(2, led.RED)
+    time.sleep_ms(3000)
+    # follow the wall
+    motor.drive(motor.MOT_AB, 70)
+    time.sleep_ms(1000)
+    linefollower.drive_angle(90)
+    motor.drive(motor.MOT_AB, 70)
+    time.sleep_ms(1000)
+    motor.stop(motor.MOT_AB)
+    tof.set(tof.FOUR)
+    while True:
+        while True:
+            dist = 70 - tof.read()
+            lightsensor.measure_white()
+            # motor.drive(motor.MOT_A, 80 - int(2*dist/(abs(dist)**0.5))//1)
+            # motor.drive(motor.MOT_B, 80 + int(2*dist/(abs(dist)**0.5))//1)
+            motor.drive(motor.MOT_A, 65 - 7*dist/(abs(dist)**0.6+1))
+            motor.drive(motor.MOT_B, 65 + 7*dist/(abs(dist)**0.6+1))
+            if not lightsensor.all_white():
+                motor.stop(motor.MOT_AB)
+                time.sleep_ms(2000)
+                return
+            if not button.left() or not button.right():
+                if button.left():
+                    while not button.right():
+                        motor.drive(motor.MOT_B, 70)
+                        motor.drive(motor.MOT_A, 30)
+                else:
+                    while not button.left():
+                        motor.drive(motor.MOT_A, 70)
+                        motor.drive(motor.MOT_B, 70)
+                break
+            # if abs(dist) >= 1000:
+            #     motor.stop(motor.MOT_AB)
+            #     led.set_status_locked(2, led.RED)
+            #     time.sleep_ms(3000)
+            #     led.set_status_locked(2, led.GREEN)
+        motor.drive(motor.MOT_AB, -70)
+        time.sleep_ms(300)
+        linefollower.drive_angle(-90)
+
+
+        # notes
+        # check reflective an white sensors for silver, maybe better detection
+        # motor trimmen TODO
 if __name__ == "__main__":
     # baaaaallll()
     test_drive_360()

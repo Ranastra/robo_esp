@@ -138,7 +138,7 @@ class VL53L1X:
         return self.readReg16Bit(0x010F)
 
     def try_reset(self):
-        """after i2c addres was resetted"""
+        """after i2c addres was resetted"""  # my own trash
         self.i2c.writeto_mem(self.address, 0x2D,
                              VL51L1X_DEFAULT_CONFIGURATION, addrsize=16)
         # machine.lightsleep(200)

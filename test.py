@@ -11,6 +11,8 @@ import grappler
 import reset
 import i2c
 import tof
+import calib
+import escape_room
 
 
 def measure_rate():
@@ -25,6 +27,8 @@ def measure_rate():
 
 def run():
     reset.reset_hardware()
+    calib.load_from_file()
+    calib.show()
     # lightsensor ##############################
     # lightsensor.test_reflective()
     # lightsensor.test_outer_diff()
@@ -52,6 +56,7 @@ def run():
     # linefollower.test_turn_angle()
     # linefollower.drive_around_object(linefollower.LEFT)
     # linefollower.test_watch_hover()
+    # linefollower.test_drive_forward_gyro()
 
     # gyro #####################################
     # gyro.test()
@@ -78,8 +83,15 @@ def run():
     # i2c.test()
 
     # tof ######################################
-    tof.test()
+    # tof.test()
+
+    # escape ###################################
+    escape_room.wall_follower()
     pass
+
+
+# TODO gyro calibrierung an use case anpassen
+# motoren drehen mit
 
 
 if __name__ == "__main__":
