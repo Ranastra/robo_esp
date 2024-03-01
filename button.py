@@ -5,7 +5,7 @@ import machine
 # middle = machine.Pin(pinesp32.T_M, machine.Pin.IN, machine.Pin.PULL_DOWN)
 left = machine.Pin(pinesp32.T_L, machine.Pin.IN,
                    machine.Pin.PULL_UP)  # is inverted
-right = machine.Pin(pinesp32.T_R, machine.Pin.IN, machine.Pin.PULL_DOWN)
+right = machine.Pin(pinesp32.T_R, machine.Pin.IN)
 
 
 def test():

@@ -41,17 +41,9 @@ def read() -> int:
     return _TOF.read()
 
 
-def test():
-    set(TWO)
-    print("two")
-    for _ in range(10):
-        print(read())
-        time.sleep_ms(200)
-    start = time.ticks_ms()
-    set(THREE)
-    print("three", time.ticks_ms() - start)
-    # time.sleep_ms(1000)
-    for _ in range(10):
+def test(tof: TOF):
+    set(tof)
+    while True:
         print(read())
         time.sleep_ms(200)
 

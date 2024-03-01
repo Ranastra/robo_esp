@@ -83,10 +83,10 @@ def run():
     # i2c.test()
 
     # tof ######################################
-    # tof.test()
+    # tof.test(tof.FOUR)
 
     # escape ###################################
-    escape_room.wall_follower()
+    # escape_room.wall_follower()
     pass
 
 

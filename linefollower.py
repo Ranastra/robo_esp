@@ -140,13 +140,13 @@ def turn_direction(direction: DIRECTION):
         time.sleep_ms(200)
     gyro.reset()
     if direction == LEFT:
-        drive_angle(-80.0)
+        drive_angle(-70.0)
     elif direction == RIGHT:
-        drive_angle(80.0)
+        drive_angle(70.0)
     elif direction == BACKWARD:
         drive_angle(180.0)
     motor.drive(motor.MOT_AB, V0)
-    time.sleep_ms(200)
+    time.sleep_ms(100)
     motor.stop(motor.MOT_AB)
 
 
@@ -158,6 +158,7 @@ def test_linefollower(basic_time_end=0):
     """linefollower"""
     faktor = 3
     V0 = 50
+    v = V0
     if basic_time_end == 0:
         basic_time_end, basic_flag = time.ticks_ms(), False
     else:
@@ -169,18 +170,18 @@ def test_linefollower(basic_time_end=0):
         diff_outer = lightsensor.get_linefollower_diff_outside()
         if abs(diff_outer) > 70:
             if diff_outer < 0:
-                vr = V0 + abs(diff_outer)
-                vl = V0 - abs(diff_outer) * faktor
+                vr = v + abs(diff_outer)
+                vl = v - abs(diff_outer) * faktor
             else:
-                vl = V0 + abs(diff_outer)
-                vr = V0 - abs(diff_outer) * faktor
+                vl = v + abs(diff_outer)
+                vr = v - abs(diff_outer) * faktor
         else:
             if diff < 0:
-                vr = V0 + abs(diff) * faktor
-                vl = V0 - abs(diff) * faktor
+                vr = v + abs(diff) * faktor
+                vl = v - abs(diff) * faktor
             else:
-                vl = V0 + abs(diff) * faktor
-                vr = V0 - abs(diff) * faktor
+                vl = v + abs(diff) * faktor
+                vr = v - abs(diff) * faktor
         motor.drive(motor.MOT_A, vl)
         motor.drive(motor.MOT_B, vr)
         # check for negative light values
@@ -205,6 +206,7 @@ def test_linefollower(basic_time_end=0):
                 time.sleep_ms(1000)
                 turn_direction(direction)
                 basic_time_end, basic_flag = time.ticks_ms() + 700, True
+                v = 25
             elif color_l == lightsensor.RED or color_r == lightsensor.RED:
                 # check for red
                 print("reeed")
@@ -221,12 +223,14 @@ def test_linefollower(basic_time_end=0):
                 print("button")
                 # check for collisions
                 drive_around_object(LEFT)
-                basic_time_end, basic_flag = time.ticks_ms() + 300, True
+                basic_time_end, basic_flag = time.ticks_ms() + 600, True
             # TODO try correcting with gyro
             # if lightsensor.inner_see_dark():
             #     gyro.active_update()
         else:
             basic_flag = time.ticks_ms() < basic_time_end
+            if not basic_flag:
+                v = V0
 
 
 def drive_around_object(direction: DIRECTION):

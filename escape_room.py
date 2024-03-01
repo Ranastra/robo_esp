@@ -13,7 +13,7 @@ import button
 
 
 def run():
-    drive_in_escape_room(0)
+    # drive_in_escape_room(0)
     escape_room_without_balls()
 
 
@@ -163,11 +163,13 @@ def drive_in_escape_room(recursion):
     motor.stop(motor.MOT_AB)
     if vals[0]:
         motor.drive(motor.MOT_B, 90)
+        motor.drive(motor.MOT_A, 50)
         while not vals[1]:
             lightsensor.measure_reflective()
             vals = lightsensor.silver()
-    if vals[1]:
+    elif vals[1]:
         motor.drive(motor.MOT_A, 90)
+        motor.drive(motor.MOT_A, 50)
         while not vals[0]:
             lightsensor.measure_reflective()
             vals = lightsensor.silver()
@@ -209,6 +211,26 @@ def wall_follower():
         motor.drive(motor.MOT_B, 50 + 11*diff/(abs(diff)**0.7+1))
 
 
+def allign():
+    motor.drive(motor.MOT_AB, -40)
+    time.sleep_ms(300)
+    motor.drive(motor.MOT_AB, 30)
+    while not button.left() or not button.right():
+        pass
+    if not button.left():
+        led.set_status_left(led.RED)
+        motor.drive(motor.MOT_A, 60)
+        while not button.right():
+            pass
+    else:
+        led.set_status_right(led.RED)
+        motor.drive(motor.MOT_B, 60)
+        while not button.left():
+            pass
+    motor.drive(motor.MOT_AB,  50)
+    time.sleep_ms(500)
+
+
 def escape_room_without_balls():
     motor.stop(motor.MOT_AB)
     led.set_status_locked(2, led.RED)
@@ -221,36 +243,38 @@ def escape_room_without_balls():
     time.sleep_ms(1000)
     motor.stop(motor.MOT_AB)
     tof.set(tof.FOUR)
+    time_out = time.ticks_ms() + 400
     while True:
         while True:
-            dist = 70 - tof.read()
+            if time.ticks_ms() > time_out:
+                dist = tof.read()
+            else:
+                dist = 0
+            print(dist)
             lightsensor.measure_white()
-            # motor.drive(motor.MOT_A, 80 - int(2*dist/(abs(dist)**0.5))//1)
-            # motor.drive(motor.MOT_B, 80 + int(2*dist/(abs(dist)**0.5))//1)
-            motor.drive(motor.MOT_A, 65 - 7*dist/(abs(dist)**0.6+1))
-            motor.drive(motor.MOT_B, 65 + 7*dist/(abs(dist)**0.6+1))
+            motor.drive(motor.MOT_AB, 30)
             if not lightsensor.all_white():
                 motor.stop(motor.MOT_AB)
                 time.sleep_ms(2000)
                 return
             if not button.left() or not button.right():
-                if button.left():
-                    while not button.right():
-                        motor.drive(motor.MOT_B, 70)
-                        motor.drive(motor.MOT_A, 30)
-                else:
-                    while not button.left():
-                        motor.drive(motor.MOT_A, 70)
-                        motor.drive(motor.MOT_B, 70)
+                allign()
                 break
-            # if abs(dist) >= 1000:
-            #     motor.stop(motor.MOT_AB)
-            #     led.set_status_locked(2, led.RED)
-            #     time.sleep_ms(3000)
-            #     led.set_status_locked(2, led.GREEN)
+            if dist > 300:
+                motor.stop(motor.MOT_AB)
+                led.set_status_locked(2, led.PURPLE)
+                time.sleep_ms(300)
+                motor.drive(motor.MOT_AB, 80)
+                time.sleep_ms(500)
+                linefollower.drive_angle(90)
+                motor.drive(motor.MOT_AB, 40)
+                while lightsensor.all_white():
+                    lightsensor.measure_white()
+                return
+
         motor.drive(motor.MOT_AB, -70)
         time.sleep_ms(300)
-        linefollower.drive_angle(-90)
+        linefollower.drive_angle(-85)
 
 
         # notes
