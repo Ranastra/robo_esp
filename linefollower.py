@@ -235,10 +235,10 @@ def test_linefollower(basic_time_end=0):
 
 def drive_around_object(direction: DIRECTION):
     """drive around an object after collision"""
-    V0 = 83
+    V0 = 85
     motor.drive(motor.MOT_AB, -60)
     led.set_status_locked(2, led.CYAN)
-    time.sleep_ms(350)
+    time.sleep_ms(200)
     vdiff = 65
     drive_angle(-70.0*direction)
     motor.drive(motor.MOT_AB, V0)
@@ -252,8 +252,8 @@ def drive_around_object(direction: DIRECTION):
             break
         lightsensor.measure_white()
     motor.drive(motor.MOT_AB, V0)
-    time.sleep_ms(150)
-    drive_angle(-90.0*direction)
+    time.sleep_ms(250)
+    drive_angle(-70.0*direction)
 
 
 def test_crossroad():

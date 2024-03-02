@@ -19,8 +19,8 @@ def reset_hardware():
 
     # servo off
     import servo
-    servo.set_angle(servo.FOUR, -90)
-    servo.set_angle(servo.THREE, -90)
+    # servo.set_angle(servo.FOUR, -90)
+    # servo.set_angle(servo.THREE, -90)
     time.sleep_ms(500)
     servo.off(servo.ONE)
     servo.off(servo.TWO)

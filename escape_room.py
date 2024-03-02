@@ -203,6 +203,7 @@ def escape_room():
 
 
 def wall_follower():
+    """not in use, test function for following wall with tof"""
     tof.set(tof.FOUR)
     while True:
         diff = 50 - tof.read()
@@ -212,30 +213,54 @@ def wall_follower():
 
 
 def allign():
+    """drive against a wall"""
     motor.drive(motor.MOT_AB, -40)
     time.sleep_ms(300)
     motor.drive(motor.MOT_AB, 30)
     while not button.left() or not button.right():
         pass
     if not button.left():
-        led.set_status_left(led.RED)
+        led.set_status_left(led.YELLOW)
         motor.drive(motor.MOT_A, 60)
         while not button.right():
             pass
     else:
-        led.set_status_right(led.RED)
+        led.set_status_right(led.YELLOW)
         motor.drive(motor.MOT_B, 60)
         while not button.left():
             pass
-    motor.drive(motor.MOT_AB,  50)
-    time.sleep_ms(500)
+    motor.drive(motor.MOT_AB,  70)
+    time.sleep_ms(1500)
+
+
+def allign_with_edge():
+    """drive against a wall and allign with the edge"""
+    motor.drive(motor.MOT_AB, -40)
+    time.sleep_ms(300)
+    motor.drive(motor.MOT_AB, 30)
+    while not button.left() or not button.right():
+        pass
+    if not button.left():
+        led.set_status_left(led.YELLOW)
+        motor.drive(motor.MOT_A, 60)
+        while not button.right():
+            pass
+    else:
+        led.set_status_right(led.YELLOW)
+        motor.drive(motor.MOT_B, 60)
+        while not button.left():
+            pass
+    # linefollower.drive_angle(20)
+    motor.drive(motor.MOT_A,  100)
+    motor.drive(motor.MOT_B,  40)
+    time.sleep_ms(2500)
 
 
 def escape_room_without_balls():
     motor.stop(motor.MOT_AB)
     led.set_status_locked(2, led.RED)
-    time.sleep_ms(3000)
-    # follow the wall
+    time.sleep_ms(1000)
+    # enter the room
     motor.drive(motor.MOT_AB, 70)
     time.sleep_ms(1000)
     linefollower.drive_angle(90)
@@ -243,7 +268,7 @@ def escape_room_without_balls():
     time.sleep_ms(1000)
     motor.stop(motor.MOT_AB)
     tof.set(tof.FOUR)
-    time_out = time.ticks_ms() + 400
+    time_out = time.ticks_ms() + 1000  # flag to not detect with tof
     while True:
         while True:
             if time.ticks_ms() > time_out:
@@ -253,14 +278,22 @@ def escape_room_without_balls():
             print(dist)
             lightsensor.measure_white()
             motor.drive(motor.MOT_AB, 30)
+            # black line
             if not lightsensor.all_white():
                 motor.stop(motor.MOT_AB)
                 time.sleep_ms(2000)
+                motor.drive(motor.MOT_AB, 40)
+                time.sleep_ms(200)
                 return
+            # wall
             if not button.left() or not button.right():
-                allign()
+                # allign()
+                allign_with_edge()
+                led.set_status_locked(2, led.YELLOW)
+                time_out = time.ticks_ms() + 700
                 break
-            if dist > 300:
+            # end of escape room
+            if dist > 400:
                 motor.stop(motor.MOT_AB)
                 led.set_status_locked(2, led.PURPLE)
                 time.sleep_ms(300)
@@ -270,12 +303,12 @@ def escape_room_without_balls():
                 motor.drive(motor.MOT_AB, 40)
                 while lightsensor.all_white():
                     lightsensor.measure_white()
+                time.sleep_ms(200)
                 return
 
         motor.drive(motor.MOT_AB, -70)
         time.sleep_ms(300)
-        linefollower.drive_angle(-85)
-
+        linefollower.drive_angle(-80)
 
         # notes
         # check reflective an white sensors for silver, maybe better detection

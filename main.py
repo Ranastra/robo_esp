@@ -7,6 +7,7 @@ import led
 import escape_room
 import gyro
 import test
+import motor
 
 print("main.py like maintenance")
 
@@ -54,6 +55,12 @@ def stop():
     reset.run()
 
 
-start()
-run()
-stop()
+while True:
+    try:
+        start()
+        run()
+        stop()
+    except:
+        motor.stop(motor.MOT_AB)
+        led.set_status_locked(2, led.GREEN)
+        time.sleep_ms(500)
