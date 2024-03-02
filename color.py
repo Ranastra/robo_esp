@@ -7,7 +7,7 @@ import time
 
 _RED_GREEN_DIFF_GREEN_LEVEL: int = 5  # green when value lower
 _RED_GREEN_DIFF_RED_LEVEL: int = -55  # red when abs value higher
-_WHITE_LEVEL_GREEN: int = 60
+_WHITE_LEVEL_GREEN: int = 50
 
 # _GREEN_COUNT_LEVEL: int = 7
 _GREEN_COUNT_LEVEL: int = 7

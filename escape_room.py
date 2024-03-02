@@ -15,6 +15,7 @@ import button
 def run():
     # drive_in_escape_room(0)
     escape_room_without_balls()
+    find_line(2)
 
 
 # plan lol
@@ -282,8 +283,6 @@ def escape_room_without_balls():
             if not lightsensor.all_white():
                 motor.stop(motor.MOT_AB)
                 time.sleep_ms(2000)
-                motor.drive(motor.MOT_AB, 40)
-                time.sleep_ms(200)
                 return
             # wall
             if not button.left() or not button.right():
@@ -303,16 +302,56 @@ def escape_room_without_balls():
                 motor.drive(motor.MOT_AB, 40)
                 while lightsensor.all_white():
                     lightsensor.measure_white()
-                time.sleep_ms(200)
                 return
 
         motor.drive(motor.MOT_AB, -70)
         time.sleep_ms(300)
         linefollower.drive_angle(-80)
 
-        # notes
-        # check reflective an white sensors for silver, maybe better detection
-        # motor trimmen TODO
+
+def find_line(recursion=0):
+    motor.drive(motor.MOT_AB, 40)
+    time.sleep_ms(300)
+    motor.stop(motor.MOT_AB)
+    print("nach vorwärts")
+    # gyro.reset()
+    motor.drive(motor.MOT_A, 50)
+    motor.drive(motor.MOT_B, -50)
+    print("hallo")
+    time_stamp = time.ticks_ms() + 1000
+    while time.ticks_ms() < time_stamp:
+        gyro.update()
+        lightsensor.measure_white()
+        if lightsensor.all_white():
+            break
+    else:
+        motor.drive(motor.MOT_A, -50)
+        motor.drive(motor.MOT_B, 50)
+        time_stamp = time.ticks_ms() + 1000
+        while time.ticks_ms() < time_stamp:
+            gyro.update()
+            lightsensor.measure_white()
+            if lightsensor.all_white():
+                break
+        else:
+            if recursion:
+                if recursion == 1:
+                    linefollower.drive_angle(-90)
+                else:
+                    linefollower.drive_angle(90)
+                motor.drive(motor.MOT_AB, 50)
+                time.sleep_ms(300)
+                find_line(recursion-1)
+            led.set_status_locked(2, led.RED)
+            motor.stop(motor.MOT_AB)
+            time.sleep_ms(1000)
+            return
+    motor.drive(motor.MOT_AB, 70)
+    time.sleep_ms(300)
+
+    # notes
+    # check reflective an white sensors for silver, maybe better detection
+    # motor trimmen TODO
 if __name__ == "__main__":
     # baaaaallll()
     test_drive_360()

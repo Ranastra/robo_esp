@@ -87,6 +87,7 @@ def run():
 
     # escape ###################################
     # escape_room.wall_follower()
+    escape_room.find_line(2)
     pass
 
 

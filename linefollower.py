@@ -97,6 +97,8 @@ def drive_off_green(direction: DIRECTION) -> list[list[lightsensor.COLOR]]:
             if color_right == lightsensor.GREEN:
                 values[right][0] = color_right
             if color_left != lightsensor.GREEN:
+                time.sleep_ms(100)
+                (color_left, color_right) = color.get()
                 values[left][1] = color_left
                 values[right][1] = until_green_end(RIGHT)[right]
                 break
@@ -104,6 +106,8 @@ def drive_off_green(direction: DIRECTION) -> list[list[lightsensor.COLOR]]:
             if color_left == lightsensor.GREEN:
                 values[left][0] = color_left
             if color_right != lightsensor.GREEN:
+                time.sleep_ms(100)
+                (color_left, color_right) = color.get()
                 values[right][1] = color_right
                 values[left][1] = until_green_end(LEFT)[left]
                 break
@@ -137,7 +141,7 @@ def turn_direction(direction: DIRECTION):
     # drive a bit forward
     if direction != BACKWARD:
         motor.drive(motor.MOT_AB, V0)
-        time.sleep_ms(200)
+        time.sleep_ms(50)
     gyro.reset()
     if direction == LEFT:
         drive_angle(-70.0)
@@ -202,6 +206,8 @@ def test_linefollower(basic_time_end=0):
                     vals = drive_off_green(RIGHT)
                 direction = decide_crossroad(vals)
                 print(vals)
+                print([[lightsensor.color_map[color]
+                      for color in pair]for pair in vals])
                 print(direction_map[direction])
                 time.sleep_ms(1000)
                 turn_direction(direction)
