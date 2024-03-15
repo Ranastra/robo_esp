@@ -13,6 +13,7 @@ import i2c
 import tof
 import calib
 import escape_room
+import escape_use
 
 
 def measure_rate():
@@ -87,7 +88,14 @@ def run():
 
     # escape ###################################
     # escape_room.wall_follower()
-    escape_room.find_line(2)
+    # escape_room.find_line(2)
+    # escape_room.test_find_line2()
+
+    # escape_usse
+    escape_use.run()
+    # escape_use.test_angle()
+    # motor.drive(motor.MOT_B, 30)
+    # motor.drive(motor.MOT_A, -50)
     pass
 
 

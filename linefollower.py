@@ -31,7 +31,7 @@ def decide_crossroad(values: list[list[lightsensor.COLOR]]) -> DIRECTION:
     """ decide direction at crossroad """  # TODO
     (left, right, first, second) = (0, 1, 0, 1)
     if values[left][first] == lightsensor.GREEN and values[right][first] == lightsensor.GREEN:
-        if values[left][second] == lightsensor.BLACK and values[right][second] == lightsensor.BLACK:
+        if values[left][second] == lightsensor.BLACK or values[right][second] == lightsensor.BLACK:
             return BACKWARD
         else:
             return FORWARD
@@ -141,7 +141,7 @@ def turn_direction(direction: DIRECTION):
     # drive a bit forward
     if direction != BACKWARD:
         motor.drive(motor.MOT_AB, V0)
-        time.sleep_ms(50)
+        time.sleep_ms(150)
     gyro.reset()
     if direction == LEFT:
         drive_angle(-70.0)
