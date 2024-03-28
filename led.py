@@ -76,6 +76,7 @@ def set_lightsensorbar_white(state: bool):
 
 ###### tests ######
 
+
 def test_status():
     """cycle through all colors for the status LEDs"""
     colors = [RED, BLUE, GREEN, WHITE, OFF, PURPLE, YELLOW, CYAN]

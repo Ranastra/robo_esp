@@ -12,14 +12,17 @@ print("calib...........crash")
 def write_to_file():
     """write calibration data from sensor instances to calib_data.txt"""
     f = open("calib_data.txt", "w")
-    for sens in sensor.white:
-        f.write("%d %d\n" % (sens.min, sens.max))
-    for sens in sensor.green:
-        f.write("%d %d\n" % (sens.min, sens.max))
-    for sens in sensor.red:
-        f.write("%d %d\n" % (sens.min, sens.max))
-    for sens in sensor.silver:
-        f.write("%d %d\n" % (sens.min, sens.max))
+    # for sens in sensor.white:
+    #     f.write("%d %d\n" % (sens.min, sens.max))
+    # for sens in sensor.green:
+    #     f.write("%d %d\n" % (sens.min, sens.max))
+    # for sens in sensor.red:
+    #     f.write("%d %d\n" % (sens.min, sens.max))
+    # for sens in sensor.silver:
+    #     f.write("%d %d\n" % (sens.min, sens.max))
+    for sensor_collection in sensor.all:
+        for sens in sensor_collection:
+            f.write("%d %d\n" % (sens.min, sens.max))
     f.close()
 
 
@@ -27,18 +30,10 @@ def load_from_file():
     """load calibration data from calib_data.txt to sensor instances"""
     try:
         f = open("calib_data.txt")
-        for sens in sensor.white:
-            value = f.readline().strip().split()
-            sens.min, sens.max = [int(val) for val in value]
-        for sens in sensor.green:
-            value = f.readline().strip().split()
-            sens.min, sens.max = [int(val) for val in value]
-        for sens in sensor.red:
-            value = f.readline().strip().split()
-            sens.min, sens.max = [int(val) for val in value]
-        for sens in sensor.silver:
-            value = f.readline().strip().split()
-            sens.min, sens.max = [int(val) for val in value]
+        for sensor_collection in sensor.all:
+            for sens in sensor_collection:
+                value = f.readline().strip().split()
+                sens.min, sens.max = [int(val) for val in value]
         f.close()
         if _PRINT_CALIB:
             print("calibration read")
@@ -84,17 +79,34 @@ def start():
         show()
 
 
+def calib_front():
+    """just dont use that"""
+    led.set_lightsensorbar_rgb(led.RED)
+    time.sleep_us(20)
+    _calib(sensor.front_red)
+    led.set_lightsensorbar_rgb(led.GREEN)
+    time.sleep_us(20)
+    _calib(sensor.front_green)
+    led.set_lightsensorbar_rgb(led.OFF)
+    if _PRINT_CALIB:
+        print("calibration done")
+
+
 def show():
     """print calibration data from sensor instances"""
-    print("white:")
-    for sens in sensor.white:
-        print(sens.min, sens.max)
-    print("green:")
-    for sens in sensor.green:
-        print(sens.min, sens.max)
-    print("red:")
-    for sens in sensor.red:
-        print(sens.min, sens.max)
-    print("silver:")
-    for sens in sensor.silver:
-        print(sens.min, sens.max)
+    # print("white:")
+    # for sens in sensor.white:
+    #     print(sens.min, sens.max)
+    # print("green:")
+    # for sens in sensor.green:
+    #     print(sens.min, sens.max)
+    # print("red:")
+    # for sens in sensor.red:
+    #     print(sens.min, sens.max)
+    # print("silver:")
+    # for sens in sensor.silver:
+    #     print(sens.min, sens.max)
+    for i in range(len(sensor.all)):
+        print(sensor.all_names[i])
+        for sens in sensor.all[i]:
+            print(sens.min, sens.max)

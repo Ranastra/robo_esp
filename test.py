@@ -64,7 +64,7 @@ def run():
 
     # motor ####################################
     # motor.test()
-    # motor.test_forward()
+    motor.test_forward()
 
     # servo ####################################
     # servo.test(servo.FOUR)
@@ -92,7 +92,7 @@ def run():
     # escape_room.test_find_line2()
 
     # escape_usse
-    escape_use.run()
+    # escape_use.run()
     # escape_use.test_angle()
     # motor.drive(motor.MOT_B, 30)
     # motor.drive(motor.MOT_A, -50)

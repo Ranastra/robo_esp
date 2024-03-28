@@ -54,6 +54,14 @@ def measure_green_red():
     time.sleep_us(15)
 
 
+def measure_front_sensor():
+    led.set_lightsensorbar_rgb(led.GREEN)
+    time.sleep_us(15)
+    for sens in sensor.front:
+        adc_multi.set_channel(sens.channel)
+        sens.val = adc_multi.read_raw()
+
+
 def measure_reflective():
     """measure silver sensors"""
     led.set_lightsensorbar_white(True)

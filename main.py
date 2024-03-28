@@ -20,6 +20,7 @@ def start():
     calib.load_from_file()
     # calibration of gyro
     gyro.calib()
+    got_calibrated_flag = False
     while not rotary_encoder.watch_button_press():
         led.set_status_locked(2, led.PURPLE)
         val = rotary_encoder.watch_rotary()
@@ -27,7 +28,12 @@ def start():
             # calibrate lightsensors
             led.set_status_locked(2, led.RED)
             time.sleep_ms(500)
-            calib.start()
+            if got_calibrated_flag:
+                calib.calib_front()
+                got_calibrated_flag = False
+            else:
+                calib.start()
+                got_calibrated_flag = True
             calib.write_to_file()
         if val == -1:
             # run tests
