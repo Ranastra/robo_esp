@@ -41,9 +41,11 @@ def run():
     # lightsensor.test_all_calib()
     # lightsensor.test_green_red_diff()
     # lightsensor.test_linefollower_diff()
+    # lightsensor.test_front_raw()
 
     # color ####################################
     # color.test()
+    # color.test_front()
 
     # led ######################################
     # led.test_status()
@@ -64,7 +66,7 @@ def run():
 
     # motor ####################################
     # motor.test()
-    motor.test_forward()
+    # motor.test_forward()
 
     # servo ####################################
     # servo.test(servo.FOUR)
@@ -96,6 +98,7 @@ def run():
     # escape_use.test_angle()
     # motor.drive(motor.MOT_B, 30)
     # motor.drive(motor.MOT_A, -50)
+    escape_use.test_scan()
     pass
 
 

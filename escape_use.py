@@ -18,18 +18,13 @@ def sign(num: int):
         return 0
 
 
-def drive_angle(angle: int, base_v=100, reset=True, overwrite=False) -> bool:
+def drive_angle(angle: int, base_v: int):
     motor.stop(motor.MOT_AB)
-    if reset:
-        gyro.reset()
+    gyro.reset()
     s = sign(angle)
     angle *= s
-    if not overwrite:
-        motor.drive(motor.MOT_A, s * (base_v + 10))
-        motor.drive(motor.MOT_B, - s * (base_v - 10))
-    else:
-        motor.drive(motor.MOT_B, -s * 40)
-        motor.drive(motor.MOT_A, s * 60)
+    motor.drive(motor.MOT_A, s * base_v)
+    motor.drive(motor.MOT_B, -s * base_v)
 
     def inner() -> bool:
         gyro.update()
@@ -54,9 +49,10 @@ def out_of_box():
     return inner
 
 
-def scan():
+def scan() -> list[tuple[int, int, int]]:
     # time_out = timeout(15_000)
-    angle = drive_angle(360, overwrite=True)
+    # angle = drive_angle(360, overwrite=True)
+    angle = drive_angle(360, 50)
     data = []
     # while not angle() and not time_out():
     while not angle():
@@ -65,6 +61,7 @@ def scan():
         tof.set(tof.THREE)
         lower = tof.read()
         data.append((upper, lower, gyro.angle[2]))
+        print('p')
     motor.stop(motor.MOT_AB)
     return data
 
@@ -166,3 +163,10 @@ def test_angle():
         pass
     motor.stop(motor.MOT_AB)
     print(gyro.angle)
+
+
+def test_scan():
+    while True:
+        print(scan())
+        motor.stop(motor.MOT_AB)
+        time.sleep_ms(500)

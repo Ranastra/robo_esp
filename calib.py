@@ -12,14 +12,6 @@ print("calib...........crash")
 def write_to_file():
     """write calibration data from sensor instances to calib_data.txt"""
     f = open("calib_data.txt", "w")
-    # for sens in sensor.white:
-    #     f.write("%d %d\n" % (sens.min, sens.max))
-    # for sens in sensor.green:
-    #     f.write("%d %d\n" % (sens.min, sens.max))
-    # for sens in sensor.red:
-    #     f.write("%d %d\n" % (sens.min, sens.max))
-    # for sens in sensor.silver:
-    #     f.write("%d %d\n" % (sens.min, sens.max))
     for sensor_collection in sensor.all:
         for sens in sensor_collection:
             f.write("%d %d\n" % (sens.min, sens.max))
@@ -94,18 +86,6 @@ def calib_front():
 
 def show():
     """print calibration data from sensor instances"""
-    # print("white:")
-    # for sens in sensor.white:
-    #     print(sens.min, sens.max)
-    # print("green:")
-    # for sens in sensor.green:
-    #     print(sens.min, sens.max)
-    # print("red:")
-    # for sens in sensor.red:
-    #     print(sens.min, sens.max)
-    # print("silver:")
-    # for sens in sensor.silver:
-    #     print(sens.min, sens.max)
     for i in range(len(sensor.all)):
         print(sensor.all_names[i])
         for sens in sensor.all[i]:

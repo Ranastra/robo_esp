@@ -9,12 +9,12 @@ _USE_WHITE_LEDS: bool = True
 # toggle to use the rgb leds on the bar to measure white
 _USE_RGB_WHITE_LEDS: bool = False
 
-###### Level for colors ######
+# Level for colors ######
 _WHITE_LEVEL: int = 20
 _SILVER_LEVEL: int = 130
 _DARK_LEVEL: int = 30
 
-###### colors ######
+# colors ######
 COLOR = int
 GREEN:  COLOR = 2
 BLACK:  COLOR = 1
@@ -24,7 +24,7 @@ SILVER: COLOR = 4
 
 color_map = {GREEN: "green", RED: "reeed", BLACK: "black", WHITE: "white"}
 
-###### measure functions ######
+# measure functions ######
 
 
 def measure_white():
@@ -54,12 +54,19 @@ def measure_green_red():
     time.sleep_us(15)
 
 
-def measure_front_sensor():
+def measure_front():
     led.set_lightsensorbar_rgb(led.GREEN)
     time.sleep_us(15)
-    for sens in sensor.front:
+    for sens in sensor.front_green:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
+    led.set_lightsensorbar_rgb(led.RED)
+    time.sleep_us(15)
+    for sens in sensor.front_red:
+        adc_multi.set_channel(sens.channel)
+        sens.val = adc_multi.read_raw()
+    led.set_lightsensorbar_rgb(led.OFF)
+    time.sleep_us(15)
 
 
 def measure_reflective():
@@ -73,7 +80,7 @@ def measure_reflective():
     time.sleep_us(30)
 
 
-###### line follower functions ######
+# line follower functions ######
 
 def all_white() -> bool:
     """check if all sensors see white"""
@@ -152,7 +159,7 @@ def inner_see_dark() -> bool:
     return (sensor.white[1].map_raw_value() < _DARK_LEVEL or
             sensor.white[3].map_raw_value() < _DARK_LEVEL)
 
-###### test functions ######
+# test functions ######
 
 
 def test_inner_see_dark():
@@ -268,4 +275,14 @@ def test_linefollower_diff():
         measure_white()
         print("calib: ", get_linefollower_diff_calib())
         print("normal ", get_linefollower_diff())
+        time.sleep_ms(100)
+
+
+def test_front_raw():
+    """measure front sensors and print raw values"""
+    while True:
+        measure_front()
+        print("reeed: ", sensor.front_red[0].val)
+        print("green: ", sensor.front_green[0].val)
+        print("difff: ", (sensor.front_green[0].val - sensor.front_red[0].val))
         time.sleep_ms(100)

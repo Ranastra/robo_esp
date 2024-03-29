@@ -1,6 +1,7 @@
 import lightsensor
 import led
 import time
+import sensor
 
 # hopes that serves separation of concerns
 # somewhere here will live the color stuff for escape room too
@@ -62,8 +63,17 @@ def get() -> list[lightsensor.COLOR]:
     return colors
 
 
-def get_escape():
-    pass
+def get_front() -> lightsensor.COLOR:
+    if ((sensor.front_green[0].val - sensor.front_red[0].val) > 200
+            and sensor.front_green[0].val < 1800
+            and sensor.front_red[0].val < 700):
+        return lightsensor.RED
+    elif ((sensor.front_green[0].val - sensor.front_red[0].val) < 200
+            and sensor.front_green[0].val < 800
+            and sensor.front_red[0].val < 700):
+        return lightsensor.GREEN
+    else:
+        return lightsensor.WHITE
 
 
 def reset():
@@ -79,3 +89,10 @@ def test():
         print("green: ", lightsensor.get_green())
         print("diffs: ", lightsensor.get_green_red_diff())
         time.sleep_ms(20)
+
+
+def test_front():
+    while True:
+        lightsensor.measure_front()
+        print(lightsensor.color_map[get_front()])
+        time.sleep_ms(100)
