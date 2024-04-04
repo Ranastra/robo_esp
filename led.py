@@ -7,7 +7,7 @@ import time
 
 
 ###### status leds ######
-COLOR = list  # [bool]  # tuple[bool, bool, bool]
+COLOR = tuple()  # type: tuple[bool, bool, bool]
 
 RED:    COLOR = (False, True,  True)
 BLUE:   COLOR = (True,  True,  False)

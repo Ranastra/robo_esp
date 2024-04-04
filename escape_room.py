@@ -1,4 +1,4 @@
-import time
+import utime
 import lightsensor
 import led
 import grappler
@@ -54,7 +54,7 @@ def scan_for_ball() -> int:
     # check if it is a box rather than a ball
     # by reading sensor values at close angles
     # maybe go to a fixed distance to the detected object
-    pass
+    return 0
 
 
 def test_drive_360():
@@ -95,12 +95,12 @@ def baaaaallll():
         print(upper, lower, diff, upper / lower)
     print("stop")
     motor.stop(motor.MOT_AB)
-    time.sleep_ms(500)
+    utime.sleep_ms(500)
     # dir_flag = 1
     # while tof.read() > 50:
     #     motor.drive(motor.MOT_AB, 70)
     #     print("vorne")
-    #     time.sleep_ms(300)
+    #     utime.sleep_ms(300)
     #     motor.stop(motor.MOT_AB)
     #     goal = tof.read() + 10
     #     while True:
@@ -109,9 +109,9 @@ def baaaaallll():
     #             break
     #         motor.drive(motor.MOT_A, dir_flag*100)
     #         motor.drive(motor.MOT_B, -dir_flag*100)
-    #         time.sleep_ms(100)
+    #         utime.sleep_ms(100)
     #         motor.stop(motor.MOT_AB)
-    #         time.sleep_ms(200)
+    #         utime.sleep_ms(200)
     #     dir_flag *= -1
     # print("stop")
     motor.stop(motor.MOT_AB)
@@ -121,7 +121,7 @@ def baaaaallll():
 
 def pick_up_ball(loc: int):
     # do a combination of drive closer and reading sensors and turning
-    # than grab the ball, retry some times
+    # than grab the ball, retry some utimes
     # should get some sort of sensor to test if the ball is in the grappler
     # look out for walls
     pass
@@ -129,7 +129,7 @@ def pick_up_ball(loc: int):
 
 def check_metal() -> bool:
     # as ez as a pin.value()
-    pass
+    return True
 
 
 def search_for_box(type_of_ball: bool):
@@ -161,7 +161,7 @@ def drive_in_escape_room(recursion):
     vals = lightsensor.silver()
     print("tse")
     motor.drive(motor.MOT_AB, -60)
-    time.sleep_ms(300)
+    utime.sleep_ms(300)
     motor.stop(motor.MOT_AB)
     if vals[0]:
         motor.drive(motor.MOT_B, 90)
@@ -178,7 +178,7 @@ def drive_in_escape_room(recursion):
     motor.stop(motor.MOT_AB)
     if recursion:
         motor.drive(motor.MOT_AB, -60)
-        time.sleep_ms(600)
+        utime.sleep_ms(600)
         for _ in range(5):
             lightsensor.measure_reflective()
 
@@ -186,7 +186,7 @@ def drive_in_escape_room(recursion):
             lightsensor.measure_reflective()
             return not lightsensor.on_silver()
         drive_forward_until(until_silver, 60)
-        # time.sleep_ms(300)
+        # utime.sleep_ms(300)
         motor.stop(motor.MOT_AB)
         drive_in_escape_room(recursion-1)
 
@@ -217,7 +217,7 @@ def wall_follower():
 def allign():
     """drive against a wall"""
     motor.drive(motor.MOT_AB, -40)
-    time.sleep_ms(300)
+    utime.sleep_ms(300)
     motor.drive(motor.MOT_AB, 30)
     while not button.left() or not button.right():
         pass
@@ -232,13 +232,13 @@ def allign():
         while not button.left():
             pass
     motor.drive(motor.MOT_AB,  70)
-    time.sleep_ms(1500)
+    utime.sleep_ms(1500)
 
 
 def allign_with_edge():
     """drive against a wall and allign with the edge"""
     motor.drive(motor.MOT_AB, -40)
-    time.sleep_ms(300)
+    utime.sleep_ms(300)
     motor.drive(motor.MOT_AB, 30)
     while not button.left() or not button.right():
         pass
@@ -255,25 +255,25 @@ def allign_with_edge():
     # linefollower.drive_angle(20)
     motor.drive(motor.MOT_A,  100)
     motor.drive(motor.MOT_B,  40)
-    time.sleep_ms(2500)
+    utime.sleep_ms(2500)
 
 
 def escape_room_without_balls():
     motor.stop(motor.MOT_AB)
     led.set_status_locked(2, led.RED)
-    time.sleep_ms(1000)
+    utime.sleep_ms(1000)
     # enter the room
     motor.drive(motor.MOT_AB, 70)
-    time.sleep_ms(1000)
+    utime.sleep_ms(1000)
     linefollower.drive_angle(90)
     motor.drive(motor.MOT_AB, 70)
-    time.sleep_ms(1000)
+    utime.sleep_ms(1000)
     motor.stop(motor.MOT_AB)
     tof.set(tof.FOUR)
-    time_out = time.ticks_ms() + 1000  # flag to not detect with tof
+    utime_out = utime.ticks_ms() + 1000  # flag to not detect with tof
     while True:
         while True:
-            if time.ticks_ms() > time_out:
+            if utime.ticks_ms() > utime_out:
                 dist = tof.read()
             else:
                 dist = 0
@@ -283,37 +283,37 @@ def escape_room_without_balls():
             # black line
             if not lightsensor.all_white():
                 motor.stop(motor.MOT_AB)
-                time.sleep_ms(2000)
+                utime.sleep_ms(2000)
                 return
             # wall
             if not button.left() or not button.right():
                 # allign()
                 allign_with_edge()
                 led.set_status_locked(2, led.YELLOW)
-                time_out = time.ticks_ms() + 700
+                utime_out = utime.ticks_ms() + 700
                 break
             # end of escape room
             if dist > 400:
                 motor.stop(motor.MOT_AB)
                 led.set_status_locked(2, led.PURPLE)
-                time.sleep_ms(300)
+                utime.sleep_ms(300)
                 motor.drive(motor.MOT_AB, 80)
-                time.sleep_ms(300)
+                utime.sleep_ms(300)
                 linefollower.drive_angle(90)
                 motor.drive(motor.MOT_AB, 40)
                 while lightsensor.all_white():
                     lightsensor.measure_white()
-                time.sleep_ms(200)
+                utime.sleep_ms(200)
                 return
 
         motor.drive(motor.MOT_AB, -40)
-        time.sleep_ms(400)
+        utime.sleep_ms(400)
         linefollower.drive_angle(-80)
 
 
 def find_line(recursion=0):
     motor.drive(motor.MOT_AB, 40)
-    time.sleep_ms(300)
+    utime.sleep_ms(300)
     motor.stop(motor.MOT_AB)
     print("nach vorwärts")
     # gyro.reset()
@@ -321,8 +321,8 @@ def find_line(recursion=0):
     motor.drive(motor.MOT_B, -20)
     print("hallo")
     flag = False
-    time_stamp = time.ticks_ms() + 2000
-    while time.ticks_ms() < time_stamp:
+    utime_stamp = utime.ticks_ms() + 2000
+    while utime.ticks_ms() < utime_stamp:
         gyro.update()
         lightsensor.measure_white()
         if not lightsensor.all_white():
@@ -330,7 +330,7 @@ def find_line(recursion=0):
             break
     if flag:
         motor.drive(motor.MOT_AB, 70)
-        time.sleep_ms(400)
+        utime.sleep_ms(400)
         motor.stop(motor.MOT_AB)
         linefollower.drive_angle(-gyro.angle[2])
         return
@@ -338,8 +338,8 @@ def find_line(recursion=0):
     gyro.reset()
     motor.drive(motor.MOT_B, 70)
     motor.drive(motor.MOT_A, -20)
-    time_stamp = time.ticks_ms() + 2000
-    while time.ticks_ms() < time_stamp:
+    utime_stamp = utime.ticks_ms() + 2000
+    while utime.ticks_ms() < utime_stamp:
         gyro.update()
         lightsensor.measure_white()
         if not lightsensor.all_white():
@@ -347,7 +347,7 @@ def find_line(recursion=0):
             break
     if flag:
         motor.drive(motor.MOT_AB, 70)
-        time.sleep_ms(400)
+        utime.sleep_ms(400)
         motor.stop(motor.MOT_AB)
         linefollower.drive_angle(-gyro.angle[2])
         return
@@ -356,10 +356,10 @@ def find_line(recursion=0):
 def find_line2():
     motor.stop(motor.MOT_AB)
     motor.drive(motor.MOT_AB, 40)
-    time.sleep_ms(300)
+    utime.sleep_ms(300)
     linefollower.drive_angle(-30)
     motor.drive(motor.MOT_AB, 40)
-    time.sleep_ms(500)
+    utime.sleep_ms(500)
     linefollower.drive_angle(30)
 
 

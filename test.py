@@ -6,7 +6,7 @@ import linefollower
 import gyro
 import servo
 import button
-import time
+import utime
 import grappler
 import reset
 import i2c
@@ -17,12 +17,12 @@ import escape_use
 
 
 def measure_rate():
-    start = time.ticks_ms()
+    start = utime.ticks_ms()
     for _ in range(1000):
         lightsensor.measure_green_red()
         lightsensor.measure_white()
         color.get()
-    end = time.ticks_ms()
+    end = utime.ticks_ms()
     print(end - start)
 
 
@@ -66,7 +66,7 @@ def run():
 
     # motor ####################################
     # motor.test()
-    # motor.test_forward()
+    motor.test_forward()
 
     # servo ####################################
     # servo.test(servo.FOUR)
@@ -87,22 +87,19 @@ def run():
 
     # tof ######################################
     # tof.test(tof.FOUR)
+    # tof.test_two_three()
 
     # escape ###################################
     # escape_room.wall_follower()
     # escape_room.find_line(2)
     # escape_room.test_find_line2()
 
-    # escape_usse
+    # escape_use
     # escape_use.run()
-    # escape_use.test_angle()
-    # motor.drive(motor.MOT_B, 30)
-    # motor.drive(motor.MOT_A, -50)
-    escape_use.test_scan()
     pass
 
 
-# TODO gyro calibrierung an use case anpassen
+# TODO: gyro calibrierung an use case anpassen
 # motoren drehen mit
 
 
