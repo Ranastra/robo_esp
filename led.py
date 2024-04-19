@@ -67,6 +67,11 @@ def set_lightsensorbar_rgb(color: COLOR):
     shift_register.set(pinesp32.SR_PT_BLUE, not color[2])
     shift_register.write()
 
+def set_front_rgb(color: COLOR):
+    """set color of status LED on lightsensorbar"""
+    shift_register.set(pinesp32.SR_RGB_RED, color[0])
+    shift_register.set(pinesp32.SR_RGB_GREEN, color[1])
+    shift_register.write()
 
 def set_lightsensorbar_white(state: bool):
     """toggle white LEDs on lightsensorbar"""

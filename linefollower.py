@@ -21,10 +21,14 @@ BACKWARD: DIRECTION = 3
 direction_map = {FORWARD: "forward", LEFT: "left",
                  RIGHT: "right", BACKWARD: "backward"}
 
-V0: int = 50
+V0: int = 70
 
 # flags
 CHECK_FOR_HOVER: bool = True
+
+ON_RAMP_UP: int = 0
+ON_RAMP_DOWN: int = 1
+FLAT_BORING: int = 2
 
 
 def decide_crossroad(values: list[list[lightsensor.COLOR]]) -> DIRECTION:
@@ -161,10 +165,11 @@ def run():
 def test_linefollower(basic_time_end=0):
     """linefollower"""
     faktor = 3
-    V0 = 50
-    v = V0
+    V0 = 65
+    v_basic_shadow = V0
+    v_ramp_shadow = v
     if basic_time_end == 0:
-        basic_time_end, basic_flag = time.ticks_ms(), False
+        basic_time_end, basic_flag = utime.ticks_ms(), False
     else:
         basic_flag = True
     while True:
@@ -172,20 +177,28 @@ def test_linefollower(basic_time_end=0):
         lightsensor.measure_white()
         diff = lightsensor.get_linefollower_diff_calib()
         diff_outer = lightsensor.get_linefollower_diff_outside()
+        ramp_mode = on_ramp
+        if ramp_mode == ON_RAMP_UP:
+            v_ramp_shadow = v_basic_shadow + 20
+        elif ramp_mode == ON_RAMP_DOWN:
+            diff //= 2
+            diff_outer //= 2
+        else:
+            v_ramp_shadow = v_basic_shadow
         if abs(diff_outer) > 70:
             if diff_outer < 0:
-                vr = v + abs(diff_outer)
-                vl = v - abs(diff_outer) * faktor
+                vr = v_ramp_shadow + abs(diff_outer)
+                vl = v_ramp_shadow - abs(diff_outer) * faktor
             else:
-                vl = v + abs(diff_outer)
-                vr = v - abs(diff_outer) * faktor
+                vl = v_ramp_shadow + abs(diff_outer)
+                vr = v_ramp_shadow - abs(diff_outer) * faktor
         else:
             if diff < 0:
-                vr = v + abs(diff) * faktor
-                vl = v - abs(diff) * faktor
+                vr = v_ramp_shadow + abs(diff) * faktor
+                vl = v_ramp_shadow - abs(diff) * faktor
             else:
-                vl = v + abs(diff) * faktor
-                vr = v - abs(diff) * faktor
+                vl = v_ramp_shadow + abs(diff) * faktor
+                vr = v_ramp_shadow - abs(diff) * faktor
         motor.drive(motor.MOT_A, vl)
         motor.drive(motor.MOT_B, vr)
         # check for negative light values
@@ -211,7 +224,7 @@ def test_linefollower(basic_time_end=0):
                 print(direction_map[direction])
                 utime.sleep_ms(1000)
                 turn_direction(direction)
-                basic_time_end, basic_flag = time.ticks_ms() + 700, True
+                basic_time_end, basic_flag = utime.ticks_ms() + 700, True
                 v = 25
             elif color_l == lightsensor.RED or color_r == lightsensor.RED:
                 # check for red
@@ -229,14 +242,14 @@ def test_linefollower(basic_time_end=0):
                 print("button")
                 # check for collisions
                 drive_around_object(LEFT)
-                basic_time_end, basic_flag = time.ticks_ms() + 600, True
+                basic_time_end, basic_flag = utime.ticks_ms() + 600, True
             # TODO try correcting with gyro
             # if lightsensor.inner_see_dark():
             #     gyro.active_update()
         else:
             basic_flag = utime.ticks_ms() < basic_time_end
             if not basic_flag:
-                v = V0
+                v_basic_shadow = V0
 
 
 def drive_around_object(direction: DIRECTION):
@@ -259,7 +272,17 @@ def drive_around_object(direction: DIRECTION):
         lightsensor.measure_white()
     motor.drive(motor.MOT_AB, V0)
     utime.sleep_ms(250)
-    drive_angle(-70.0*direction)
+    drive_angle(-60.0*direction)
+
+
+def on_ramp():
+    val = gyro.get_tilt()
+    if val > 0.2:
+        return ON_RAMP_DOWN
+    elif val < -0.2:
+        return ON_RAMP_UP
+    else:
+        return FLAT_BORING
 
 
 def test_crossroad():
@@ -334,6 +357,11 @@ def test_drive_forward_gyro():
     while True:
         gyro.update()
         print(gyro.angle[0])
+
+def test_ramp():
+    while True:
+        utime.sleep_ms(500)
+        print(on_ramp())
 
 
 if __name__ == "__main__":

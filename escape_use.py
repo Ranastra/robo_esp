@@ -7,12 +7,13 @@ import lightsensor
 import button
 import grappler
 import color
+import escape_room
 
-# tof.TWO = upper
+# tof.ONE = upper
 # tof.THREE = lower
 
-BALL_ALIVE = 0
-BALL_DEAD = 1
+BALL_ALIVE = 1
+BALL_DEAD = 2
 
 def sign(x: float):
     if x > 0:
@@ -71,7 +72,7 @@ def try_scan() -> list[tuple[float, float, float]]:
     time_out = get_timeout(t=9000)
     data = []
     while not angle() and not time_out():
-        tof.set(tof.TWO)
+        tof.set(tof.ONE)
         upper = tof.read()
         tof.set(tof.THREE)
         lower = tof.read()
@@ -87,7 +88,7 @@ def try_scan_and_break() -> tuple[bool, float]:
     angle = get_angle(angle=-180.0, base_v=57)
     time_out = get_timeout(t=9000)
     while not angle() and not time_out():
-        tof.set(tof.TWO)
+        tof.set(tof.ONE)
         upper = tof.read()
         tof.set(tof.THREE)
         lower = tof.read()
@@ -109,7 +110,7 @@ def try_scan_stopping() -> list[tuple[float, float, float]]:
         i = float(i)
         just_drive_angle(i, 200, res=False)
         motor.stop(motor.MOT_AB)
-        tof.set(tof.TWO)
+        tof.set(tof.ONE)
         upper = tof.read()
         tof.set(tof.THREE)
         lower = tof.read()
@@ -149,17 +150,20 @@ def get_lowest(data: list[tuple[float, float, float]]) -> float:
     # print("lowest_angle", lowest_angle)
     return lowest_angle
 
+def allign_with_wall():
+    just_drive_angle(90, 1000)
+    just_drive_forward(1500)
+    just_drive_forward(1000, rev=-1)
+    just_drive_angle(-90, 1000)
+
+
 def drive_at_wall(t: int):
     led.set_status_locked(2, led.PURPLE)
-    # ausgleichen
     tof.set(tof.FOUR)
-    dist = tof.read()
-    if dist > 150:
-        just_drive_angle(10.0, 300)
-    elif dist < 50:
-        just_drive_angle(-10.0, 300)
+    if tof.read() < 400:
+        allign_with_wall()
     # fahren
-    tof.set(tof.TWO)
+    tof.set(tof.ONE)
     motor.drive(motor.MOT_AB, 50)
     timeout = get_timeout(t)
     while not timeout():
@@ -188,13 +192,20 @@ def pick_ball(ball_angle: float, distance: float) -> int:
     motor.stop(motor.MOT_AB)
     # grappler zu und hoch!!!
     grappler.grab()
+    grappler.loose()
+    tof.set(tof.THREE)
+    # if tof.read() > 100:
+    #     return False
+    # else:
+    grappler.grab()
     grappler.up()
     utime.sleep_ms(1000)
     # check with metal sens
-    if not button.metal.value():
-        return BALL_ALIVE
-    else:
-        return BALL_DEAD
+    # if not button.read_metal():
+    #     return BALL_ALIVE
+    # else:
+    #     return BALL_DEAD
+    return BALL_ALIVE
 
 def wall_opt(dist: float):
     tof.set(tof.FOUR)
@@ -213,6 +224,12 @@ def wall_opt(dist: float):
     just_drive_forward(300, rev=-1)
     just_drive_angle(diff2 - diff1, 1000)
 
+
+def wall_bounce_allign():
+    while button.left.value():
+        just_drive_forward(400, rev=-1)
+        just_drive_angle(-10, 700)
+        just_drive_forward(600)
 
 def drop_ball(ball_type: int):
     # an der wand ausrichten
@@ -254,25 +271,25 @@ def drop_ball(ball_type: int):
             # return drop_ball(ball_type)
 
 
+def drive_in_room():
+    just_drive_forward(700)
+    just_drive_angle(90, 1000)
+    just_drive_forward(700)
+
 def run():
-    while True:
+    drive_in_room()
+    counter = 0
+    timeout = get_timeout(270_000)
+    while not timeout():
         drive_at_wall(1200)
-        # data = try_scan()
-        # # data = try_scan_stopping()
-        # ball_angle, distance = check_diff(data)
-        # # print(" in run ball angle", ball_angle)
-        # if ball_angle:
-        #     ball_type = pick_ball(ball_angle, distance)
-        #     led.set_status_locked(2, led.RED)
-        #     drop_ball(ball_type)
-        # else:
-        #     # wall_angle = get_lowest(data)
-        #     # # print(" in run wall angle", wall_angle)
-        #     # just_drive_angle(wall_angle, 1000)
-        #     pass
         flag, dist = try_scan_and_break()
         if flag:
             ball_type = pick_ball(0.0, dist)
-            utime.sleep_ms(5000)
-            drop_ball(ball_type)
+            if ball_type:
+                utime.sleep_ms(5000)
+                drop_ball(ball_type)
+                counter += 1
+                if counter >= 3:
+                    grappler.throw()
+                    return
 

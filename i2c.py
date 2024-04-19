@@ -22,3 +22,10 @@ def test():
                     "I2C device found at address 0x{:02X}!".format(address))
         print("Done\n")
         time.sleep(5)  # Wait 5 seconds for the next scan
+
+
+if __name__ == "__main__":
+    import shift_register
+    shift_register.set(pinesp32.SR_XSHT1, True)
+    shift_register.write()
+    test()

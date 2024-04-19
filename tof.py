@@ -11,10 +11,10 @@ TWO: TOF = pinesp32.SR_XSHT2
 THREE: TOF = pinesp32.SR_XSHT3
 FOUR: TOF = pinesp32.SR_XSHT4
 
-shift_register.set(TWO, True)
+shift_register.set(TWO, False)
 shift_register.set(FOUR, False)
 shift_register.set(THREE, False)
-shift_register.set(ONE, False)
+shift_register.set(ONE, True)
 shift_register.write()
 _current = TWO
 utime.sleep_ms(50)

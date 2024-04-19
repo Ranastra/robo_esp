@@ -55,17 +55,17 @@ def measure_green_red():
 
 
 def measure_front():
-    led.set_lightsensorbar_rgb(led.GREEN)
+    led.set_front_rgb(led.GREEN)
     utime.sleep_us(15)
     for sens in sensor.front_green:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
-    led.set_lightsensorbar_rgb(led.RED)
+    led.set_front_rgb(led.RED)
     utime.sleep_us(15)
     for sens in sensor.front_red:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
-    led.set_lightsensorbar_rgb(led.OFF)
+    led.set_front_rgb(led.OFF)
     utime.sleep_us(15)
 
 

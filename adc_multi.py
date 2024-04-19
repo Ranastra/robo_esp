@@ -48,3 +48,6 @@ def set_channel(channel: int):
 def read_raw():
     """read raw value with ADC"""
     return _ADC_MULTI.read()
+
+def read_like_button():
+    return _ADC_MULTI.read()

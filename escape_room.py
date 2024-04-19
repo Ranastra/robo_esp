@@ -258,17 +258,18 @@ def allign_with_edge():
     utime.sleep_ms(2500)
 
 
-def escape_room_without_balls():
+def escape_room_without_balls(skip=False):
     motor.stop(motor.MOT_AB)
     led.set_status_locked(2, led.RED)
     utime.sleep_ms(1000)
     # enter the room
-    motor.drive(motor.MOT_AB, 70)
-    utime.sleep_ms(1000)
-    linefollower.drive_angle(90)
-    motor.drive(motor.MOT_AB, 70)
-    utime.sleep_ms(1000)
-    motor.stop(motor.MOT_AB)
+    if skip:
+        motor.drive(motor.MOT_AB, 70)
+        utime.sleep_ms(1000)
+        linefollower.drive_angle(90)
+        motor.drive(motor.MOT_AB, 70)
+        utime.sleep_ms(1000)
+        motor.stop(motor.MOT_AB)
     tof.set(tof.FOUR)
     utime_out = utime.ticks_ms() + 1000  # flag to not detect with tof
     while True:
@@ -302,8 +303,13 @@ def escape_room_without_balls():
                 linefollower.drive_angle(90)
                 motor.drive(motor.MOT_AB, 40)
                 while lightsensor.all_white():
+                    # lightsensor.measure_reflective()
+                    # vals = lightsensor.silver()
+                    # if True in vals:
+                    #     break
                     lightsensor.measure_white()
                 utime.sleep_ms(200)
+                find_line()
                 return
 
         motor.drive(motor.MOT_AB, -40)

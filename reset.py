@@ -12,6 +12,7 @@ def reset_hardware():
     led.set_status_right(led.OFF)
     led.set_lightsensorbar_rgb(led.OFF)
     led.set_lightsensorbar_white(False)
+    led.set_front_rgb(led.OFF)
 
     # grappler to starting position
     import grappler

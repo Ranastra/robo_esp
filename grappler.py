@@ -1,7 +1,7 @@
 import servo
 
-_servo_turn = servo.THREE
-_servo_grab = servo.FOUR
+_servo_turn = servo.TWO
+_servo_grab = servo.ONE
 
 
 def up():
@@ -11,7 +11,7 @@ def up():
 
 
 def down():
-    servo.set_angle(_servo_turn, 90)
+    servo.set_angle(_servo_turn, 10)
 
 
 def grab():
@@ -22,3 +22,15 @@ def grab():
 
 def loose():
     servo.set_angle(_servo_grab, 30)  
+
+def throw():
+    servo.set_angle(_servo_turn, 0, wait_time_ms=1)
+    servo.set_angle(_servo_grab, 30, wait_time_ms=1)
+    
+
+
+if __name__ == '__main__':
+    up()
+    down()
+    up()
+    down()

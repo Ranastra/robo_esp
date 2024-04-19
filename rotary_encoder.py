@@ -9,7 +9,7 @@ _TIME_DISABLE_BUTTON_MS = 300
 # Rotary Encoder Pins
 _ENC_A = machine.Pin(pinesp32.ENC_A, machine.Pin.IN)
 _ENC_B = machine.Pin(pinesp32.ENC_B, machine.Pin.IN)
-_ENC_SW = machine.Pin(pinesp32.ENC_SW, machine.Pin.IN)
+_ENC_SW = machine.Pin(pinesp32.ENC_SW, machine.Pin.IN, machine.Pin.PULL_UP)
 
 # state variables
 state = 0
@@ -21,7 +21,7 @@ _button_pressed = False
 def watch_button_press() -> bool:
     """return if button was pressed"""
     global _button_pressed, _time_stamp_button
-    if _ENC_SW.value():
+    if not _ENC_SW.value():
         if _button_pressed:
             if _time_stamp_button < time.ticks_ms():
                 _button_pressed = False

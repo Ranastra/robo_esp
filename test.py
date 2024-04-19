@@ -27,6 +27,7 @@ def measure_rate():
 
 
 def run():
+    reset.reset_hardware()
     calib.load_from_file()
     calib.show()
     # lightsensor ##############################
@@ -59,13 +60,15 @@ def run():
     # linefollower.drive_around_object(linefollower.LEFT)
     # linefollower.test_watch_hover()
     # linefollower.test_drive_forward_gyro()
+    linefollower.test_ramp()
 
     # gyro #####################################
     # gyro.test()
+    # gyro.test_accell_gyro()
 
     # motor ####################################
     # motor.test()
-    motor.test_forward()
+    # motor.test_forward()
 
     # servo ####################################
     # servo.test(servo.FOUR)
@@ -95,7 +98,7 @@ def run():
     # escape_room.test_find_line2()
 
     # escape_use
-    # escape_use.run()
+    escape_use.run()
     # escape_use.drop_ball(escape_use.BALL_ALIVE)
     pass
 
@@ -105,5 +108,4 @@ def run():
 
 
 if __name__ == "__main__":
-    reset.reset_hardware()
     run()
