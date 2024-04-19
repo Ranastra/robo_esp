@@ -76,13 +76,13 @@ def time_it():
 
 def time_one():
     set(TWO)
-    start = utime.ticks_ms()
     l = [0]
+    start = utime.ticks_ms()
     for _ in range(20):
         while read() == l[-1]:
             pass
         l.append(read())
-    print(utime.ticks_ms() - start)
+    print((utime.ticks_ms() - start) / 20)
     print(l)
 
 

@@ -16,6 +16,8 @@ def reset_hardware():
     # grappler to starting position
     import grappler
     # grappler.loose()
+    grappler.up()
+    grappler.grab()
 
     # servo off
     import servo

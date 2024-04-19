@@ -5,9 +5,14 @@ import gyro
 import tof
 import lightsensor
 import button
+import grappler
+import color
 
 # tof.TWO = upper
 # tof.THREE = lower
+
+BALL_ALIVE = 0
+BALL_DEAD = 1
 
 def sign(x: float):
     if x > 0:
@@ -24,12 +29,13 @@ def is_outside():
     return lightsensor.silver()[0] or lightsensor.silver()[1] or not lightsensor.all_white()
     
 
-def get_angle(angle: float, base_v: int):
+def get_angle(angle: float, base_v: int, res=True):
     def inner() -> bool:
         gyro.update()
         return abs(gyro.angle[2]) > angle
     motor.stop(motor.MOT_AB)
-    gyro.reset()
+    if res:
+        gyro.reset()
     angle = angle - gyro.angle[2] # relative angle is better
     s = sign(angle)
     angle *= s
@@ -44,9 +50,9 @@ def get_timeout(t: int):
     end = utime.ticks_ms() + t
     return inner
 
-def just_drive_angle(angle: float, t: int):
+def just_drive_angle(angle: float, t: int, res=True):
     # print("in just_drive_angle", angle)
-    a = get_angle(angle, 70)
+    a = get_angle(angle, 70, res)
     timeout = get_timeout(t)
     while not a() and not timeout():
         pass
@@ -61,8 +67,8 @@ def just_drive_forward(t: int, rev = 1):
 
 def try_scan() -> list[tuple[float, float, float]]:
     led.set_status_locked(2, led.RED)
-    angle = get_angle(angle=180.0, base_v=40)
-    time_out = get_timeout(t=7000)
+    angle = get_angle(angle=-180.0, base_v=57)
+    time_out = get_timeout(t=9000)
     data = []
     while not angle() and not time_out():
         tof.set(tof.TWO)
@@ -70,21 +76,66 @@ def try_scan() -> list[tuple[float, float, float]]:
         tof.set(tof.THREE)
         lower = tof.read()
         data.append((upper, lower, gyro.angle[2]))
+        print('test', (upper, lower, upper-lower))
     just_drive_angle(-gyro.angle[2], 4500)
     motor.stop(motor.MOT_AB)
     led.set_status_locked(2, led.GREEN)
     return data
 
-def check_diff(data: list[tuple[float, float, float]]) -> float:
-    LIMIT_DIFF = 100.0
+def try_scan_and_break() -> tuple[bool, float]:
+    led.set_status_locked(2, led.RED)
+    angle = get_angle(angle=-180.0, base_v=57)
+    time_out = get_timeout(t=9000)
+    while not angle() and not time_out():
+        tof.set(tof.TWO)
+        upper = tof.read()
+        tof.set(tof.THREE)
+        lower = tof.read()
+        # data.append((upper, lower, gyro.angle[2]))
+        if check_diff_one((upper, lower, gyro.angle[2])):
+            motor.stop(motor.MOT_AB)
+            return (True, lower)
+    just_drive_angle(-gyro.angle[2], 4500)
+    motor.stop(motor.MOT_AB)
+    led.set_status_locked(2, led.GREEN)
+    return (False, 0.0)
+
+
+def try_scan_stopping() -> list[tuple[float, float, float]]:
+    led.set_status_locked(2, led.RED)
+    gyro.reset()
+    data =  []
+    for i in range(0, 181, 5):
+        i = float(i)
+        just_drive_angle(i, 200, res=False)
+        motor.stop(motor.MOT_AB)
+        tof.set(tof.TWO)
+        upper = tof.read()
+        tof.set(tof.THREE)
+        lower = tof.read()
+        data.append((upper, lower, i))
+    return data
+
+
+
+def check_diff(data: list[tuple[float, float, float]]) -> tuple[float, float]:
+    LIMIT_DIFF = 200.0
     OUT_OF_MAP_LIMIT = 1500.0
     max_diff = LIMIT_DIFF
     angle = 0.0
+    distance = 0.0
+    # print('test', data[:10]) 
     for i in range(len(data)):
         if data[i][0] - data[i][1] > max_diff and data[i][0] < OUT_OF_MAP_LIMIT:
             max_diff = data[i][0] - data[i][1]
             angle = data[i][2]
-    return angle
+            distance = data[i][1]
+    return angle, distance
+
+def check_diff_one(data: tuple[float, float, float]):
+    LIMIT_DIFF = 150.0
+    OUT_OF_MAP_LIMIT = 1500.0
+    return data[0] < OUT_OF_MAP_LIMIT and data[0] - data[1] > LIMIT_DIFF
 
 def get_lowest(data: list[tuple[float, float, float]]) -> float:
     lowest = 4000.0
@@ -98,43 +149,130 @@ def get_lowest(data: list[tuple[float, float, float]]) -> float:
     # print("lowest_angle", lowest_angle)
     return lowest_angle
 
-def drive_at_wall():
+def drive_at_wall(t: int):
     led.set_status_locked(2, led.PURPLE)
+    # ausgleichen
+    tof.set(tof.FOUR)
+    dist = tof.read()
+    if dist > 150:
+        just_drive_angle(10.0, 300)
+    elif dist < 50:
+        just_drive_angle(-10.0, 300)
+    # fahren
+    tof.set(tof.TWO)
     motor.drive(motor.MOT_AB, 50)
-    timeout = get_timeout(900)
+    timeout = get_timeout(t)
     while not timeout():
         if is_outside():
             just_drive_forward(700, rev=-1)
-            just_drive_angle(90.0, 1000)
-        if not button.right.value() or not button.left.value():
+            just_drive_angle(-90.0, 1000)
+        if not button.right.value() or not button.left.value() or tof.read() < 200:
             just_drive_forward(300, rev=-1)
-            just_drive_angle(90.0, 1000)
+            just_drive_angle(-90.0, 1000)
     motor.stop(motor.MOT_AB)
+
+
+def pick_ball(ball_angle: float, distance: float) -> int:
+    just_drive_angle(ball_angle -10, 3000)
+    motor.stop(motor.MOT_AB)
+    led.set_status_locked(2, led.YELLOW)
+    utime.sleep_ms(1500)
+    # grappler runter und aufmachen :)
+    grappler.loose()
+    grappler.down()
+    motor.drive(motor.MOT_AB, 50)
+    timeout = get_timeout(int(distance * 4 + 1000))
+    while not timeout():
+        if is_outside(): 
+            break
+    motor.stop(motor.MOT_AB)
+    # grappler zu und hoch!!!
+    grappler.grab()
+    grappler.up()
+    utime.sleep_ms(1000)
+    # check with metal sens
+    if not button.metal.value():
+        return BALL_ALIVE
+    else:
+        return BALL_DEAD
+
+def wall_opt(dist: float):
+    tof.set(tof.FOUR)
+    diff0 = tof.read()
+    if diff0 - 50 < dist:
+        just_drive_angle(90.0, 1000)
+        just_drive_forward(300)
+        just_drive_angle(-90.0, 1000)
+    elif diff0 + 50 > dist:
+        just_drive_angle(-90.0, 1000)
+        just_drive_forward(300, rev=-1)
+        just_drive_angle(90.0, 1000)
+    diff1 = tof.read()
+    just_drive_forward(300)
+    diff2 = tof.read()
+    just_drive_forward(300, rev=-1)
+    just_drive_angle(diff2 - diff1, 1000)
+
+
+def drop_ball(ball_type: int):
+    # an der wand ausrichten
+    timeout = get_timeout(6000)
+    motor.drive(motor.MOT_AB, 70)
+    while not timeout() and button.left.value() and button.right.value():
+        if is_outside():
+            just_drive_forward(1000, rev=-1)
+            just_drive_angle(-90.0, 1000)
+            return drop_ball(ball_type)
+    motor.drive(motor.MOT_A, 90)
+    motor.drive(motor.MOT_B, 50)
+    utime.sleep(1500)
+    motor.drive(motor.MOT_A, 50)
+    motor.drive(motor.MOT_B, 90)
+    utime.sleep(1500)
+    while True:
+        just_drive_forward(500, rev=-1)
+        just_drive_angle(-90.0, 1000)
+        while not is_outside() and button.left.value() and button.right.value():
+            pass
+        motor.stop(motor.MOT_AB)
+        if not is_outside():
+            gyro.reset()
+            just_drive_forward(300, rev=-1)
+            motor.drive(motor.MOT_A, 90)
+            motor.drive(motor.MOT_B, 50)
+            utime.sleep_ms(1500)
+            lightsensor.measure_front()
+            if (color.get_front() == lightsensor.RED and ball_type == BALL_DEAD) or (color.get_front() == lightsensor.GREEN and ball_type == BALL_ALIVE):
+                grappler.down()
+                grappler.loose()
+                return
+            else:
+                just_drive_forward(300, rev=-1)
+        else:
+            just_drive_forward(1000, rev=-1)
+            just_drive_angle(90.0, 1000)
+            # return drop_ball(ball_type)
 
 
 def run():
     while True:
-        drive_at_wall()
-        data = try_scan()
-        ball_angle = check_diff(data)
-        # print(" in run ball angle", ball_angle)
-        if ball_angle:
-            just_drive_angle(ball_angle, 1000)
-            motor.stop(motor.MOT_AB)
-            led.set_status_locked(2, led.YELLOW)
-            utime.sleep_ms(1500)
-            # grappler runter und aufmachen :)
-            motor.drive(motor.MOT_AB, 50)
-            timeout = get_timeout(2000)
-            while not timeout():
-                if is_outside(): 
-                    break
-            motor.stop(motor.MOT_AB)
-            # grappler zu und hoch!!!
-            utime.sleep_ms(1000)
-        else:
-            # wall_angle = get_lowest(data)
-            # # print(" in run wall angle", wall_angle)
-            # just_drive_angle(wall_angle, 1000)
-            pass
-            
+        drive_at_wall(1200)
+        # data = try_scan()
+        # # data = try_scan_stopping()
+        # ball_angle, distance = check_diff(data)
+        # # print(" in run ball angle", ball_angle)
+        # if ball_angle:
+        #     ball_type = pick_ball(ball_angle, distance)
+        #     led.set_status_locked(2, led.RED)
+        #     drop_ball(ball_type)
+        # else:
+        #     # wall_angle = get_lowest(data)
+        #     # # print(" in run wall angle", wall_angle)
+        #     # just_drive_angle(wall_angle, 1000)
+        #     pass
+        flag, dist = try_scan_and_break()
+        if flag:
+            ball_type = pick_ball(0.0, dist)
+            utime.sleep_ms(5000)
+            drop_ball(ball_type)
+

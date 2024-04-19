@@ -1,6 +1,6 @@
 import lightsensor
 import led
-import time
+import utime
 import sensor
 
 # hopes that serves separation of concerns
@@ -88,11 +88,11 @@ def test():
         print("colors: ", [lightsensor.color_map[num] for num in get()])
         print("green: ", lightsensor.get_green())
         print("diffs: ", lightsensor.get_green_red_diff())
-        time.sleep_ms(20)
+        utime.sleep_ms(20)
 
 
 def test_front():
     while True:
         lightsensor.measure_front()
         print(lightsensor.color_map[get_front()])
-        time.sleep_ms(100)
+        utime.sleep_ms(100)

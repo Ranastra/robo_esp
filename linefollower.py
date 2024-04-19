@@ -1,5 +1,5 @@
 import motor
-import time
+import utime
 import lightsensor
 import color
 import led
@@ -68,7 +68,7 @@ def until_green_end(direction: DIRECTION) -> list[int]:
                 (direction == RIGHT and values[1] != lightsensor.GREEN)
         ):
             # print(values)
-            # time.sleep_ms(50)
+            # utime.sleep_ms(50)
             # values = color.get()
             return values
 
@@ -97,7 +97,7 @@ def drive_off_green(direction: DIRECTION) -> list[list[lightsensor.COLOR]]:
             if color_right == lightsensor.GREEN:
                 values[right][0] = color_right
             if color_left != lightsensor.GREEN:
-                time.sleep_ms(100)
+                utime.sleep_ms(100)
                 (color_left, color_right) = color.get()
                 values[left][1] = color_left
                 values[right][1] = until_green_end(RIGHT)[right]
@@ -106,7 +106,7 @@ def drive_off_green(direction: DIRECTION) -> list[list[lightsensor.COLOR]]:
             if color_left == lightsensor.GREEN:
                 values[left][0] = color_left
             if color_right != lightsensor.GREEN:
-                time.sleep_ms(100)
+                utime.sleep_ms(100)
                 (color_left, color_right) = color.get()
                 values[right][1] = color_right
                 values[left][1] = until_green_end(LEFT)[left]
@@ -141,7 +141,7 @@ def turn_direction(direction: DIRECTION):
     # drive a bit forward
     if direction != BACKWARD:
         motor.drive(motor.MOT_AB, V0)
-        time.sleep_ms(150)
+        utime.sleep_ms(150)
     gyro.reset()
     if direction == LEFT:
         drive_angle(-70.0)
@@ -150,7 +150,7 @@ def turn_direction(direction: DIRECTION):
     elif direction == BACKWARD:
         drive_angle(180.0)
     motor.drive(motor.MOT_AB, V0)
-    time.sleep_ms(100)
+    utime.sleep_ms(100)
     motor.stop(motor.MOT_AB)
 
 
@@ -209,7 +209,7 @@ def test_linefollower(basic_time_end=0):
                 print([[lightsensor.color_map[color]
                       for color in pair]for pair in vals])
                 print(direction_map[direction])
-                time.sleep_ms(1000)
+                utime.sleep_ms(1000)
                 turn_direction(direction)
                 basic_time_end, basic_flag = time.ticks_ms() + 700, True
                 v = 25
@@ -217,13 +217,13 @@ def test_linefollower(basic_time_end=0):
                 # check for red
                 print("reeed")
                 motor.stop(motor.MOT_AB)
-                time.sleep_ms(10_000)
+                utime.sleep_ms(10_000)
             elif lightsensor.on_silver():
                 print("silveeeer")
                 # check for reflective
                 motor.stop(motor.MOT_AB)
                 led.set_status_locked(2, led.WHITE)
-                time.sleep_ms(1000)
+                utime.sleep_ms(1000)
                 return
             elif not button.left.value() or not button.right.value():
                 print("button")
@@ -234,7 +234,7 @@ def test_linefollower(basic_time_end=0):
             # if lightsensor.inner_see_dark():
             #     gyro.active_update()
         else:
-            basic_flag = time.ticks_ms() < basic_time_end
+            basic_flag = utime.ticks_ms() < basic_time_end
             if not basic_flag:
                 v = V0
 
@@ -244,21 +244,21 @@ def drive_around_object(direction: DIRECTION):
     V0 = 85
     motor.drive(motor.MOT_AB, -60)
     led.set_status_locked(2, led.CYAN)
-    time.sleep_ms(200)
+    utime.sleep_ms(200)
     vdiff = 65
     drive_angle(-70.0*direction)
     motor.drive(motor.MOT_AB, V0)
-    time.sleep_ms(100)
+    utime.sleep_ms(100)
     motor.drive(motor.MOT_A, V0 + vdiff*direction)
     motor.drive(motor.MOT_B, V0 - vdiff*direction)
     lightsensor.measure_white()
-    start = time.ticks_ms()
+    start = utime.ticks_ms()
     while True:
-        if not lightsensor.all_white() and time.ticks_ms() - start > 500:
+        if not lightsensor.all_white() and utime.ticks_ms() - start > 500:
             break
         lightsensor.measure_white()
     motor.drive(motor.MOT_AB, V0)
-    time.sleep_ms(250)
+    utime.sleep_ms(250)
     drive_angle(-70.0*direction)
 
 
@@ -291,16 +291,16 @@ def test_turn_direction():
     for _ in range(2):
         print("left")
         turn_direction(LEFT)
-        time.sleep(1)
+        utime.sleep(1)
         print("right")
         turn_direction(RIGHT)
-        time.sleep(1)
+        utime.sleep(1)
         print("forward")
         turn_direction(FORWARD)
-        time.sleep(1)
+        utime.sleep(1)
         print("backward")
         turn_direction(BACKWARD)
-        time.sleep(1)
+        utime.sleep(1)
 
 
 def test_watch_hover():
@@ -312,7 +312,7 @@ def test_watch_hover():
         print()
         watch_hover()
         print("end")
-        time.sleep_ms(300)
+        utime.sleep_ms(300)
 
 
 def test_turn_angle():
@@ -321,10 +321,10 @@ def test_turn_angle():
     while True:
         print("left")
         drive_angle(-90.0)
-        time.sleep(1)
+        utime.sleep(1)
         print("right")
         drive_angle(90.0)
-        time.sleep(1)
+        utime.sleep(1)
 
 
 def test_drive_forward_gyro():

@@ -27,7 +27,6 @@ def measure_rate():
 
 
 def run():
-    reset.reset_hardware()
     calib.load_from_file()
     calib.show()
     # lightsensor ##############################
@@ -88,6 +87,7 @@ def run():
     # tof ######################################
     # tof.test(tof.FOUR)
     # tof.test_two_three()
+    # tof.time_one()
 
     # escape ###################################
     # escape_room.wall_follower()
@@ -96,6 +96,7 @@ def run():
 
     # escape_use
     # escape_use.run()
+    # escape_use.drop_ball(escape_use.BALL_ALIVE)
     pass
 
 
@@ -104,4 +105,5 @@ def run():
 
 
 if __name__ == "__main__":
+    reset.reset_hardware()
     run()

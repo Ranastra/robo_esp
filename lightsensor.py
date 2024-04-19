@@ -1,6 +1,6 @@
 import adc_multi
 import led
-import time
+import utime
 import sensor
 import math
 
@@ -30,54 +30,54 @@ color_map = {GREEN: "green", RED: "reeed", BLACK: "black", WHITE: "white"}
 def measure_white():
     """measure sensors with white light"""
     led.set_lightsensorbar_white(True)
-    time.sleep_us(30)
+    utime.sleep_us(30)
     for sens in sensor.white:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
     led.set_lightsensorbar_white(False)
-    time.sleep_us(30)
+    utime.sleep_us(30)
 
 
 def measure_green_red():
     """measure sensors with green and red light"""
     led.set_lightsensorbar_rgb(led.GREEN)
-    time.sleep_us(15)
+    utime.sleep_us(15)
     for sens in sensor.green:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
     led.set_lightsensorbar_rgb(led.RED)
-    time.sleep_us(15)
+    utime.sleep_us(15)
     for sens in sensor.red:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
     led.set_lightsensorbar_rgb(led.OFF)
-    time.sleep_us(15)
+    utime.sleep_us(15)
 
 
 def measure_front():
     led.set_lightsensorbar_rgb(led.GREEN)
-    time.sleep_us(15)
+    utime.sleep_us(15)
     for sens in sensor.front_green:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
     led.set_lightsensorbar_rgb(led.RED)
-    time.sleep_us(15)
+    utime.sleep_us(15)
     for sens in sensor.front_red:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
     led.set_lightsensorbar_rgb(led.OFF)
-    time.sleep_us(15)
+    utime.sleep_us(15)
 
 
 def measure_reflective():
     """measure silver sensors"""
     led.set_lightsensorbar_white(True)
-    time.sleep_us(30)
+    utime.sleep_us(30)
     for sens in sensor.silver:
         adc_multi.set_channel(sens.channel)
         sens.val = adc_multi.read_raw()
     led.set_lightsensorbar_white(False)
-    time.sleep_us(30)
+    utime.sleep_us(30)
 
 
 # line follower functions ######
@@ -109,7 +109,7 @@ def get_linefollower_diff_calib() -> int:
     diff = math.copysign(
         math.sqrt(abs(float(diff_midddle))),
         diff_midddle)*4 + diff_midddle
-    return diff // 2
+    return int(diff // 2)
 
 
 def get_linefollower_diff_outside() -> int:
@@ -119,7 +119,7 @@ def get_linefollower_diff_outside() -> int:
     return diff_outside
 
 
-def get_green_red_diff() -> int:
+def get_green_red_diff() -> list[int]:
     """get difference between green and red"""
     return [
         sensor.green[0].map_raw_value() - sensor.red[0].map_raw_value(),
@@ -168,7 +168,7 @@ def test_inner_see_dark():
     while True:
         measure_white()
         print(inner_see_dark())
-        time.sleep_ms(100)
+        utime.sleep_ms(100)
 
 
 def test_white():
@@ -176,7 +176,7 @@ def test_white():
     while True:
         measure_white()
         print([sens.val for sens in sensor.white])
-        time.sleep_ms(100)
+        utime.sleep_ms(100)
 
 
 def test_reflective():
@@ -186,7 +186,7 @@ def test_reflective():
         print([sens.val for sens in sensor.silver])
         print([sens.map_raw_value() for sens in sensor.silver])
         print(on_silver())
-        time.sleep_ms(100)
+        utime.sleep_ms(100)
 
 
 def test_all_calib():
@@ -200,7 +200,7 @@ def test_all_calib():
         print([sens.map_raw_value() for sens in sensor.green])
         print("red: ", end='')
         print([sens.map_raw_value() for sens in sensor.red])
-        time.sleep_ms(100)
+        utime.sleep_ms(100)
 
 
 def test_all():
@@ -217,7 +217,7 @@ def test_all():
         print("_raw_red_light: ", end='')
         print([sens.val for sens in sensor.red])
         print([sens.map_raw_value() for sens in sensor.red])
-        time.sleep_ms(100)
+        utime.sleep_ms(100)
 
 
 def test_red_green():
@@ -232,7 +232,7 @@ def test_red_green():
         print(
             [sensor.red[i].val - sensor.green[i].val for i in range(2)]
         )
-        time.sleep_ms(100)
+        utime.sleep_ms(100)
 
 
 def test_green_red_diff():
@@ -245,7 +245,7 @@ def test_green_red_diff():
         print([sens.map_raw_value() for sens in sensor.green])
         print("diff: ", end='')
         print(get_green_red_diff())
-        time.sleep_ms(100)
+        utime.sleep_ms(100)
 
 
 def test_linefollower_diffs_all():
@@ -258,7 +258,7 @@ def test_linefollower_diffs_all():
         print("middle: ", diff_middle)
         print("left: ", diff_left)
         print("right: ", diff_right)
-        time.sleep_ms(200)
+        utime.sleep_ms(200)
 
 
 def test_outer_diff():
@@ -266,7 +266,7 @@ def test_outer_diff():
     while True:
         measure_white()
         print(get_linefollower_diff_outside())
-        time.sleep_ms(200)
+        utime.sleep_ms(200)
 
 
 def test_linefollower_diff():
@@ -275,7 +275,7 @@ def test_linefollower_diff():
         measure_white()
         print("calib: ", get_linefollower_diff_calib())
         print("normal ", get_linefollower_diff())
-        time.sleep_ms(100)
+        utime.sleep_ms(100)
 
 
 def test_front_raw():
@@ -285,4 +285,4 @@ def test_front_raw():
         print("reeed: ", sensor.front_red[0].val)
         print("green: ", sensor.front_green[0].val)
         print("difff: ", (sensor.front_green[0].val - sensor.front_red[0].val))
-        time.sleep_ms(100)
+        utime.sleep_ms(100)

@@ -104,7 +104,7 @@ VL51L1X_DEFAULT_CONFIGURATION = bytes([
 
 
 class VL53L1X:
-    def __init__(self, i2c, address=0x29):
+    def __init__(self, i2c: machine.I2C, address=0x29):
         self.i2c = i2c
         self.address = address
         self.reset()
@@ -151,17 +151,17 @@ class VL53L1X:
     def read(self):
         data = self.i2c.readfrom_mem(
             self.address, 0x0089, 17, addrsize=16)  # RESULT__RANGE_STATUS
-        range_status = data[0]
+        # range_status = data[0]
         # report_status = data[1]
-        stream_count = data[2]
-        dss_actual_effective_spads_sd0 = (data[3] << 8) + data[4]
+        # stream_count = data[2]
+        # dss_actual_effective_spads_sd0 = (data[3] << 8) + data[4]
         # peak_signal_count_rate_mcps_sd0 = (data[5]<<8) + data[6]
-        ambient_count_rate_mcps_sd0 = (data[7] << 8) + data[8]
+        # ambient_count_rate_mcps_sd0 = (data[7] << 8) + data[8]
         # sigma_sd0 = (data[9]<<8) + data[10]
         # phase_sd0 = (data[11]<<8) + data[12]
         final_crosstalk_corrected_range_mm_sd0 = (data[13] << 8) + data[14]
-        peak_signal_count_rate_crosstalk_corrected_mcps_sd0 = (
-            data[15] << 8) + data[16]
+        # peak_signal_count_rate_crosstalk_corrected_mcps_sd0 = (
+        #     data[15] << 8) + data[16]
         # status = None
         # if range_status in (17, 2, 1, 3):
         # status = "HardwareFail"

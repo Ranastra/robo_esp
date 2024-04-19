@@ -1,4 +1,4 @@
 import reset
-reset.run()
+# reset.run()
 
 print("in boot.py... where are my boots?")
