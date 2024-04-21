@@ -95,7 +95,12 @@ def try_scan_and_break() -> tuple[bool, float]:
         # data.append((upper, lower, gyro.angle[2]))
         if check_diff_one((upper, lower, gyro.angle[2])):
             motor.stop(motor.MOT_AB)
-            return (True, lower)
+            tof.set(tof.ONE)
+            upper_now = tof.read()
+            if check_diff_one((upper_now, lower, gyro.angle[2])):
+                return (True, lower)
+            else:
+                angle = get_angle(angle=-180.0, base_v=57, res=False)
     just_drive_angle(-gyro.angle[2], 4500)
     motor.stop(motor.MOT_AB)
     led.set_status_locked(2, led.GREEN)
@@ -116,7 +121,6 @@ def try_scan_stopping() -> list[tuple[float, float, float]]:
         lower = tof.read()
         data.append((upper, lower, i))
     return data
-
 
 
 def check_diff(data: list[tuple[float, float, float]]) -> tuple[float, float]:
@@ -180,7 +184,7 @@ def pick_ball(ball_angle: float, distance: float) -> int:
     just_drive_angle(ball_angle -10, 3000)
     motor.stop(motor.MOT_AB)
     led.set_status_locked(2, led.YELLOW)
-    utime.sleep_ms(1500)
+    # utime.sleep_ms(1500)
     # grappler runter und aufmachen :)
     grappler.loose()
     grappler.down()
@@ -196,16 +200,16 @@ def pick_ball(ball_angle: float, distance: float) -> int:
     tof.set(tof.THREE)
     # if tof.read() > 100:
     #     return False
-    # else:
+    # else:11
     grappler.grab()
     grappler.up()
-    utime.sleep_ms(1000)
+    utime.sleep_ms(300)
     # check with metal sens
-    # if not button.read_metal():
-    #     return BALL_ALIVE
-    # else:
-    #     return BALL_DEAD
-    return BALL_ALIVE
+    if button.read_metal():
+        return BALL_ALIVE
+    else:
+        return BALL_DEAD
+    # return BALL_ALIVE
 
 def wall_opt(dist: float):
     tof.set(tof.FOUR)
@@ -240,15 +244,16 @@ def drop_ball(ball_type: int):
             just_drive_forward(1000, rev=-1)
             just_drive_angle(-90.0, 1000)
             return drop_ball(ball_type)
+    print('walll')
     motor.drive(motor.MOT_A, 90)
     motor.drive(motor.MOT_B, 50)
-    utime.sleep(1500)
+    utime.sleep_ms(1500)
     motor.drive(motor.MOT_A, 50)
     motor.drive(motor.MOT_B, 90)
-    utime.sleep(1500)
+    utime.sleep_ms(1500)
+    print('allign')
     while True:
-        just_drive_forward(500, rev=-1)
-        just_drive_angle(-90.0, 1000)
+        motor.drive(motor.MOT_AB, 70)
         while not is_outside() and button.left.value() and button.right.value():
             pass
         motor.stop(motor.MOT_AB)
@@ -257,7 +262,7 @@ def drop_ball(ball_type: int):
             just_drive_forward(300, rev=-1)
             motor.drive(motor.MOT_A, 90)
             motor.drive(motor.MOT_B, 50)
-            utime.sleep_ms(1500)
+            utime.sleep_ms(2000)
             lightsensor.measure_front()
             if (color.get_front() == lightsensor.RED and ball_type == BALL_DEAD) or (color.get_front() == lightsensor.GREEN and ball_type == BALL_ALIVE):
                 grappler.down()
@@ -269,6 +274,8 @@ def drop_ball(ball_type: int):
             just_drive_forward(1000, rev=-1)
             just_drive_angle(90.0, 1000)
             # return drop_ball(ball_type)
+        just_drive_forward(500, rev=-1)
+        just_drive_angle(-90.0, 1000)
 
 
 def drive_in_room():
@@ -293,3 +300,5 @@ def run():
                     grappler.throw()
                     return
 
+if __name__ == '__main__':
+    drop_ball(BALL_ALIVE)

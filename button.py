@@ -12,7 +12,7 @@ right = machine.Pin(pinesp32.T_R, machine.Pin.IN, machine.Pin.PULL_UP)
 
 def read_metal()-> bool:
     adc_multi.set_channel(pinesp32.ADC_T_M)
-    return adc_multi.read_like_button()
+    return adc_multi.read_like_button() < 4095
 
 
 def test():

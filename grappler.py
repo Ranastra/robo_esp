@@ -26,6 +26,14 @@ def loose():
 def throw():
     servo.set_angle(_servo_turn, 0, wait_time_ms=1)
     servo.set_angle(_servo_grab, 30, wait_time_ms=1)
+
+
+def pack():
+    servo.set_angle(_servo_turn, -90, wait_time_ms=500)
+    servo.set_angle(_servo_grab, -90, wait_time_ms=500)
+    # up()
+    # grab()
+
     
 
 

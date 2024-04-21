@@ -29,6 +29,7 @@ CHECK_FOR_HOVER: bool = True
 ON_RAMP_UP: int = 0
 ON_RAMP_DOWN: int = 1
 FLAT_BORING: int = 2
+RAMP_MAP = {ON_RAMP_DOWN: 'ON_RAMP_DOWN', ON_RAMP_UP: 'ON_RAMP_UP', FLAT_BORING: 'FLAT_BORING'}
 
 
 def decide_crossroad(values: list[list[lightsensor.COLOR]]) -> DIRECTION:
@@ -143,18 +144,18 @@ def turn_direction(direction: DIRECTION):
     # try correcting with gyro # TODO
     # drive_angle(-gyro.angle[2])  # this will prob break everything
     # drive a bit forward
-    if direction != BACKWARD:
+    if direction == BACKWARD:
         motor.drive(motor.MOT_AB, V0)
         utime.sleep_ms(150)
     gyro.reset()
     if direction == LEFT:
-        drive_angle(-70.0)
+        drive_angle(-80.0)
     elif direction == RIGHT:
-        drive_angle(70.0)
+        drive_angle(80.0)
     elif direction == BACKWARD:
         drive_angle(180.0)
     motor.drive(motor.MOT_AB, V0)
-    utime.sleep_ms(100)
+    utime.sleep_ms(300)
     motor.stop(motor.MOT_AB)
 
 
@@ -164,10 +165,8 @@ def run():
 
 def test_linefollower(basic_time_end=0):
     """linefollower"""
-    faktor = 3
-    V0 = 65
-    v_basic_shadow = V0
-    v_ramp_shadow = v
+    V0 = 55
+    V0_OFF = 20 # V0 base v for faster side and v for slower side = V0 - V0_OFF
     if basic_time_end == 0:
         basic_time_end, basic_flag = utime.ticks_ms(), False
     else:
@@ -177,28 +176,54 @@ def test_linefollower(basic_time_end=0):
         lightsensor.measure_white()
         diff = lightsensor.get_linefollower_diff_calib()
         diff_outer = lightsensor.get_linefollower_diff_outside()
-        ramp_mode = on_ramp
-        if ramp_mode == ON_RAMP_UP:
-            v_ramp_shadow = v_basic_shadow + 20
-        elif ramp_mode == ON_RAMP_DOWN:
-            diff //= 2
-            diff_outer //= 2
+        ramp_mode = on_ramp()
+        mode_line = 0
+        if basic_flag:
+            v = 35
+            mode_line = 1
         else:
-            v_ramp_shadow = v_basic_shadow
-        if abs(diff_outer) > 70:
+            if ramp_mode == ON_RAMP_UP:
+                diff //= 3
+                diff_outer //= 3
+                v = 100
+                mode_line = 1
+            elif ramp_mode == ON_RAMP_DOWN:
+                diff //= 7
+                diff_outer //= 7
+                v = V0 - 30
+                mode_line = 1
+            else:
+                v = V0
+                model_line = 0
+        # if abs(diff_outer) > 70 and not basic_flag:
+        if False:
             if diff_outer < 0:
-                vr = v_ramp_shadow + abs(diff_outer)
-                vl = v_ramp_shadow - abs(diff_outer) * faktor
+                vr = 100
+                vl = -40
             else:
-                vl = v_ramp_shadow + abs(diff_outer)
-                vr = v_ramp_shadow - abs(diff_outer) * faktor
+                vl = 100
+                vr = -40
         else:
-            if diff < 0:
-                vr = v_ramp_shadow + abs(diff) * faktor
-                vl = v_ramp_shadow - abs(diff) * faktor
+            # if abs(diff) == 0:
+            #     scaler = 1.5
+            # else:
+            #     scaler = min(max((abs(diff) + 3) / abs(diff) - 1, 0.0), 1.5)
+            if mode_line == 1:
+                if diff < 0:
+                    # vr = (v + abs(diff) * 3) + abs(diff_outer)
+                    # vl = (v - abs(diff) * 3 - V0_OFF) - abs(diff_outer) 
+                    # vr = int((v + abs(diff) * 3) * scaler) + abs(diff_outer)
+                    # vl = int((v - abs(diff) * 3 - V0_OFF) * scaler) - abs(diff_outer) 
+                    vr = v + abs(diff) * 1 + abs(diff_outer) * 2
+                    vl = v - abs(diff) * 1 - abs(diff_outer) * 2
+                else:
+                    # vl = int((v + abs(diff) * 3) * scaler) + abs(diff_outer)
+                    # vr = int((v - abs(diff) * 3 - V0_OFF) * scaler) - abs(diff_outer) 
+                    vl = v + abs(diff) * 1 + abs(diff_outer) * 2
+                    vr = v - abs(diff) * 1 - abs(diff_outer) * 2
             else:
-                vl = v_ramp_shadow + abs(diff) * faktor
-                vr = v_ramp_shadow - abs(diff) * faktor
+
+        print(vl, vr)
         motor.drive(motor.MOT_A, vl)
         motor.drive(motor.MOT_B, vr)
         # check for negative light values
@@ -206,7 +231,7 @@ def test_linefollower(basic_time_end=0):
         # check for events
         if not basic_flag:
             # if True:
-            for _ in range(5):
+            for _ in range(2):
                 lightsensor.measure_green_red()
                 (color_l, color_r) = color.get()
             lightsensor.measure_reflective()
@@ -225,13 +250,13 @@ def test_linefollower(basic_time_end=0):
                 utime.sleep_ms(1000)
                 turn_direction(direction)
                 basic_time_end, basic_flag = utime.ticks_ms() + 700, True
-                v = 25
+                # v_basic_shadow = 35
             elif color_l == lightsensor.RED or color_r == lightsensor.RED:
                 # check for red
                 print("reeed")
                 motor.stop(motor.MOT_AB)
                 utime.sleep_ms(10_000)
-            elif lightsensor.on_silver():
+            elif lightsensor.on_silver() and ramp_mode == FLAT_BORING:
                 print("silveeeer")
                 # check for reflective
                 motor.stop(motor.MOT_AB)
@@ -240,24 +265,27 @@ def test_linefollower(basic_time_end=0):
                 return
             elif not button.left.value() or not button.right.value():
                 print("button")
+                motor.stop(motor.MOT_AB)
+                utime.sleep_ms(300)
                 # check for collisions
-                drive_around_object(LEFT)
+                if not button.left.value() or not button.right.value():
+                    drive_around_object(LEFT)
                 basic_time_end, basic_flag = utime.ticks_ms() + 600, True
             # TODO try correcting with gyro
             # if lightsensor.inner_see_dark():
             #     gyro.active_update()
         else:
             basic_flag = utime.ticks_ms() < basic_time_end
-            if not basic_flag:
-                v_basic_shadow = V0
+            # if not basic_flag:
+            #     v_basic_shadow = V0
 
 
 def drive_around_object(direction: DIRECTION):
     """drive around an object after collision"""
-    V0 = 85
+    V0 = 82
     motor.drive(motor.MOT_AB, -60)
     led.set_status_locked(2, led.CYAN)
-    utime.sleep_ms(200)
+    utime.sleep_ms(150)
     vdiff = 65
     drive_angle(-70.0*direction)
     motor.drive(motor.MOT_AB, V0)
@@ -271,15 +299,15 @@ def drive_around_object(direction: DIRECTION):
             break
         lightsensor.measure_white()
     motor.drive(motor.MOT_AB, V0)
-    utime.sleep_ms(250)
+    utime.sleep_ms(150)
     drive_angle(-60.0*direction)
 
 
 def on_ramp():
     val = gyro.get_tilt()
-    if val > 0.2:
+    if val > 0.15:
         return ON_RAMP_DOWN
-    elif val < -0.2:
+    elif val < -0.1:
         return ON_RAMP_UP
     else:
         return FLAT_BORING
@@ -361,7 +389,7 @@ def test_drive_forward_gyro():
 def test_ramp():
     while True:
         utime.sleep_ms(500)
-        print(on_ramp())
+        print(RAMP_MAP[on_ramp()])
 
 
 if __name__ == "__main__":

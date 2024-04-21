@@ -1,4 +1,4 @@
-import time
+import utime
 
 
 def reset_hardware():
@@ -16,15 +16,13 @@ def reset_hardware():
 
     # grappler to starting position
     import grappler
-    # grappler.loose()
-    grappler.up()
-    grappler.grab()
+    grappler.pack()
 
     # servo off
     import servo
     # servo.set_angle(servo.FOUR, -90)
     # servo.set_angle(servo.THREE, -90)
-    time.sleep_ms(500)
+    utime.sleep_ms(500)
     servo.off(servo.ONE)
     servo.off(servo.TWO)
     servo.off(servo.THREE)

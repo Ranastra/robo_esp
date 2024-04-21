@@ -64,15 +64,19 @@ def get() -> list[lightsensor.COLOR]:
 
 
 def get_front() -> lightsensor.COLOR:
-    if ((sensor.front_green[0].val - sensor.front_red[0].val) > 200
-            and sensor.front_green[0].val < 1800
-            and sensor.front_red[0].val < 700):
+    # if ((sensor.front_green[0].val - sensor.front_red[0].val) > 200
+            # and sensor.front_green[0].val < 1800
+            # and sensor.front_red[0].val < 700):
+    if (sensor.front_green[0].val - sensor.front_red[0].val) < -600:
+        led.set_front_rgb(led.RED)
         return lightsensor.RED
     elif ((sensor.front_green[0].val - sensor.front_red[0].val) < 200
             and sensor.front_green[0].val < 800
             and sensor.front_red[0].val < 700):
+        led.set_front_rgb(led.GREEN)
         return lightsensor.GREEN
     else:
+        led.set_front_rgb(led.WHITE)
         return lightsensor.WHITE
 
 

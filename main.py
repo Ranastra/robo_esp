@@ -51,7 +51,7 @@ def run():
     led.set_status_locked(2, led.BLUE)
     utime.sleep_ms(500)
     escape_use.run()
-    escape_room.run() # drive out of this hell
+    escape_room.run(skip=True) # drive out of this hell
     led.set_status_locked(2, led.PURPLE)
     utime.sleep_ms(500)
     linefollower.run()
